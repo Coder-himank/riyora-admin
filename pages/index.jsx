@@ -1,4 +1,4 @@
-import styles from "@/styles/home.module.css";
+import styles from "@/styles/Home.module.css";
 import StatCard from "@/components/StatCard";
 import SalesChart from "@/components/SalesChart";
 import OrdersChart from "@/components/OrdersChart";
