@@ -1,0 +1,7 @@
+.chartCard {
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    background: var(--bgColor-2);
+    border: none;
+    padding-bottom: 12px;
+}

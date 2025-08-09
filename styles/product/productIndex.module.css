@@ -1,0 +1,94 @@
+/* styles/product/productIndex.module.css */
+
+.container {
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color);
+}
+
+.productList {
+    max-width: 900px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.listItem {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background: var(--bg-color-2);
+    /* border: 1px solid #e1e1e1; */
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 0 20px -9px rgba(0, 0, 0, 0.258);
+    transition: transform 0.2s ease;
+}
+
+
+.itemImageWrapper {
+    flex-shrink: 0;
+    margin-right: 1rem;
+    width: 30%;
+    max-width: 200px;
+}
+
+.itemImageWrapper img {
+    width: 100%;
+    height: fit-content;
+    object-fit: contain;
+}
+
+.itemTextContent {
+    flex: 1;
+    display: flex;
+    align-items: start;
+    gap: 10px;
+    flex-direction: column;
+}
+
+.itemTextContent h2 {
+    font-size: clamp(16px, 3vw, 1.2rem);
+    margin: 0 0 0.5rem;
+}
+
+.itemDataDisplay {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.95rem;
+    color: var(--color);
+    margin-bottom: 1rem;
+}
+
+.itemActions button {
+    padding: 0.5rem 1rem;
+    background-color: rgb(11, 78, 11);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.itemActions button:hover {
+    background-color: rgb(3, 91, 3);
+}
+
+.noProducts {
+    text-align: center;
+    color: var(--color-2);
+    font-style: italic;
+}

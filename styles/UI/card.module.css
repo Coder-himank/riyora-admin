@@ -1,0 +1,29 @@
+.card {
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    /* light gray border */
+    background-color: var(--bgColor-2);
+    color: var(--color);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.cardHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+}
+
+.cardTitle {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+
+.cardContent {
+    padding: 16px;
+    padding-top: 0;
+}
