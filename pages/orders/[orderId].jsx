@@ -57,7 +57,7 @@ const OrderDetails = ({ onAccept, onCancel }) => {
         _id,
     } = orderDetails;
 
-    const baseImageUrl = process.env.IMAGE_BASE_URL
+    const baseImageUrl = process.env.NEXT_PUBLIC_IMAGE_BASE_URL
 
     return (
         <div className={styles.container}>

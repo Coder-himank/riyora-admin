@@ -20,8 +20,8 @@ export default function SalesChart({ data, timeperiod }) {
                         <YAxis stroke="#ccc" />
                         <Tooltip
                             contentStyle={{ backgroundColor: "#333", border: "none" }}
-                            itemStyle={{ color: "var(--color)" }}
-                            labelStyle={{ color: "var(--color)" }}
+                            itemStyle={{ color: "var(--color-primary)" }}
+                            labelStyle={{ color: "var(--color-primary)" }}
                         />
                         <Legend wrapperStyle={{ color: "#ccc" }} />
 

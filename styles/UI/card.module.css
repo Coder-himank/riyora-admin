@@ -2,8 +2,8 @@
     border-radius: 8px;
     border: 1px solid #e5e7eb;
     /* light gray border */
-    background-color: var(--bgColor-2);
-    color: var(--color);
+    background-color: var(--color-bg-2);
+    color: var(--color-primary);
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 }

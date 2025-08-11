@@ -1,5 +1,4 @@
 .dashboardContainer {
-  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -15,7 +14,7 @@
 .dashboardTitle {
   font-size: 28px;
   font-weight: bold;
-  color: var(--color);
+  color: var(--color-primary);
 }
 
 .header select {

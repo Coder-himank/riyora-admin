@@ -38,7 +38,7 @@
 .dropdown option {
     /* background: #000; */
     background: none;
-    background-color: var(--bgColor-1);
+    background-color: var(--color-bg-1);
     border: none;
     outline: none;
     color: var(--color-2);
@@ -48,9 +48,9 @@
     width: 100%;
     overflow-x: auto;
     min-height: 400px;
-    background-color: var(--bgColor-2);
+    background-color: var(--color-bg-2);
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     justify-content: start;
     flex-direction: column;
 
@@ -58,7 +58,6 @@
 
 .orderList .head_row {
     font-weight: bold;
-    margin: auto;
     width: 100%;
 
 }
@@ -66,7 +65,7 @@
 .orderList .orderItem,
 .head_row {
     width: 100%;
-    margin: auto;
+    margin: 4px auto;
     padding: 20px 0;
     /* border-bottom: 1px solid #ccc; */
     box-shadow: 0 0 20px -9px rgba(0, 0, 0, 0.121);
@@ -74,17 +73,18 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     text-align: center;
-    margin: 4px 0;
     font-size: 14px;
 
-    background: var(--bgColor-1);
+    background: var(--color-bg-1);
     max-width: 95%;
     transition: all 0.2s;
+    border-radius: 6px;
+    color: white;
 }
 
 .orderItem:hover {
     max-width: 96%;
-    background: darkslategray;
+    background: rgb(119, 120, 120);
 }
 
 .confirm_btn,

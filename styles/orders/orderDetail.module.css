@@ -17,13 +17,13 @@
 .section {
   margin-bottom: 20px;
   padding: 15px;
-  background: var(--bgColor-2);
+  background: var(--color-bg-2);
   border-radius: 8px;
 }
 
 .section h2 {
   margin-bottom: 10px;
-  color: var(--color);
+  color: var(--color-primary);
 }
 
 .section_info {

@@ -4,8 +4,10 @@ import { Toaster } from "react-hot-toast";
 export default function App({ Component, pageProps }) {
   return (
     <>
-      <Navbar />
-      <Component {...pageProps} />
+      <div className="container">
+        <Navbar />
+        <Component {...pageProps} />
+      </div>
       <Toaster position="top-right" reverseOrder={false} />
     </>
   );

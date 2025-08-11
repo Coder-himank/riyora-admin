@@ -4,6 +4,10 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import styles from "@/styles/product/edit.module.css";
 
+import ChipInput from "@/components/ui/ChipInput";
+import { setNestedValue, getNestedValue } from "@/lib/utils";
+import { MultiImageUploader } from "@/components/ui/ImageUploader";
+
 export const arrayMainFields = [
     { label: "Name", name: "name" },
     { label: "Description", name: "description" },
@@ -52,47 +56,7 @@ export const arrayFields = [
     ]
 ];
 
-/** ChipInput component inside same file */
-function ChipInput({ name, values = [], onChange }) {
-    const [inputValue, setInputValue] = useState("");
 
-    const handleKeyDown = (e) => {
-        if (e.key === "," || e.key === "Enter") {
-            e.preventDefault();
-            const trimmed = inputValue.trim();
-            if (trimmed && !values.includes(trimmed)) {
-                onChange([...values, trimmed]);
-            }
-            setInputValue("");
-        }
-    };
-
-    const removeChip = (chip) => {
-        onChange(values.filter(v => v !== chip));
-    };
-
-    return (
-        <div className={styles.chipContainer}>
-            <div className={styles.chipHolder}>
-
-                {values.map((chip, idx) => (
-                    <div key={idx} className={styles.chip}>
-                        {chip}
-                        <button type="button" onClick={() => removeChip(chip)}>×</button>
-                    </div>
-                ))}
-            </div>
-            <input
-                type="text"
-                name={name}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type and press comma"
-            />
-        </div>
-    );
-}
 
 const EditProductPage = () => {
     const router = useRouter();
@@ -101,7 +65,7 @@ const EditProductPage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [dragOver, setDragOver] = useState(false);
-    const baseImageUrl = process.env.IMAGE_BASE_URL;
+    const baseImageUrl = process.env.NEXT_PUBLIC_IMAGE_BASE_URL;
 
     useEffect(() => {
         if (!productId) return;
@@ -127,13 +91,6 @@ const EditProductPage = () => {
         });
     };
 
-    const handleImageDrop = (e) => {
-        e.preventDefault();
-        setDragOver(false);
-        const files = Array.from(e.dataTransfer.files);
-        const urls = files.map(file => URL.createObjectURL(file));
-        setProduct(prev => ({ ...prev, imageUrl: [...(prev.imageUrl || []), ...urls] }));
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -147,19 +104,22 @@ const EditProductPage = () => {
         }
     };
 
-    const getNestedValue = (obj, path) => {
-        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-    };
 
-    const setNestedValue = (obj, path, value) => {
-        const keys = path.split('.');
-        const lastKey = keys.pop();
-        const deepRef = keys.reduce((acc, key) => {
-            if (!acc[key]) acc[key] = {};
-            return acc[key];
-        }, obj);
-        deepRef[lastKey] = value;
-    };
+    const setImage = (urls) => {
+        setProduct((prev) => ({
+            ...prev,
+            imageUrl: [...prev.imageUrl, ...urls]
+        }))
+    }
+
+    const removeImage = (idx) => {
+        setProduct((prev) => ({
+            ...prev,
+            imageUrl: prev.imageUrl.filter((_, i) => i !== idx)
+            // imageUrl: []
+        }))
+    }
+
 
     if (loading) return <p>Loading...</p>;
     if (!product) return <p>Product not found</p>;
@@ -211,22 +171,14 @@ const EditProductPage = () => {
                         </section>
                     ))}
 
-                    {/* Image Drop Zone */}
-                    <div
-                        className={`${styles.dropZone} ${dragOver ? styles.dragOver : ""}`}
-                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                        onDragLeave={() => setDragOver(false)}
-                        onDrop={handleImageDrop}
-                    >
-                        <p>Drag & Drop Images Here</p>
-                        {product.imageUrl?.length > 0 && (
-                            <div className={styles.imagePreview}>
-                                {product.imageUrl.map((url, idx) => (
-                                    <img key={idx} src={baseImageUrl + url} alt={`Preview ${idx}`} />
-                                ))}
-                            </div>
-                        )}
-                    </div>
+
+                    {/* Image Uploader */}
+                    <MultiImageUploader
+                        images={product.imageUrl}
+                        setDataFunction={setImage}
+                        removeDataFunction={removeImage}
+                        fileFolder={"Products"}
+                    />
 
                     <button type="submit" className={styles.saveBtn}>Save Product</button>
                 </form>

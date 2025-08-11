@@ -1,24 +1,28 @@
+/* Page container */
 .container {
-    /* background-color: #f9fafb; */
-    color: #1f2937;
+    color: var(--color-1);
+    padding: 2rem;
 }
 
+/* Header */
 .header {
     border-bottom: 2px solid var(--color-2);
-    margin-bottom: 1.5rem;
-    padding: 20px;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
 }
 
 .header h2 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: bold;
 }
 
 .header p {
-    font-weight: 100;
-    padding: 10px 0;
+    font-weight: 300;
+    padding-top: 0.5rem;
+    opacity: 0.85;
 }
 
+/* Layout */
 .form_container {
     width: 100%;
     display: flex;
@@ -26,19 +30,16 @@
     flex-wrap: wrap;
 }
 
+/* Form box */
 .form {
     flex: 2;
-    /* background: white; */
-    background-color: var(--bgColor-2);
+    background-color: var(--color-bg-2);
     padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
 }
 
-.section {
-    margin-bottom: 1rem;
-}
-
+/* Input fields */
 .inputDiv {
     display: flex;
     flex-direction: column;
@@ -47,120 +48,61 @@
 
 .inputDiv label {
     font-weight: 500;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.4rem;
 }
 
 .inputDiv input {
     padding: 0.6rem;
-    /* border: 1px solid black; */
-    border: none;
-    border-radius: 8px;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
     outline: none;
-    background-color: var(--bgColor-3);
-    transition: border 0.2s ease-in-out;
+    background-color: var(--color-bg-3);
+    color: var(--color-1);
+    transition: border 0.2s, background 0.2s;
 }
 
 .inputDiv input:focus {
-    border-color: #3b82f6;
+    border-color: var(--color-accent);
+    background-color: #555;
 }
 
-.dropZone {
-    border: 2px dashed #9ca3af;
-    padding: 1.5rem;
-    border-radius: 12px;
-    text-align: center;
-    /* background-color: #f3f4f6; */
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.dragOver {
-    background-color: #e0f2fe;
-    border-color: #3b82f6;
-}
-
-.imagePreview {
-    margin-top: 1rem;
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.imagePreview img {
-    height: 80px;
-    width: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-}
-
-.saveBtn {
-    background-color: #3b82f6;
+.filePickerBtn {
+    display: inline-block;
+    background-color: #444;
     color: white;
-    padding: 0.8rem 1.2rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.filePickerBtn:hover {
+    background-color: #666;
+}
+
+/* Save button */
+.saveBtn {
+    background-color: var(--color-accent);
+    color: white;
+    padding: 0.8rem 1.4rem;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius);
     cursor: pointer;
     margin-top: 1rem;
     transition: background 0.3s;
-}
-
-.saveBtn:hover {
-    background-color: #2563eb;
-}
-
-.aside {
-    flex: 1;
-    /* background: var(--bgColor-2); */
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-
-.chipContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.4rem;
-    /* border: 1px solid #d1d5db; */
-    border-radius: 8px;
-    flex-direction: column;
-    background: var(--bgColor-1);
-}
-
-.chipHolder {
-    width: 100%;
-    height: fit-content;
-    display: flex;
-    align-items: center;
-    justify-content: start;
-    gap: 10px;
-}
-
-.chip {
-    display: flex;
-    align-items: center;
-    background: var(--bgColor-3);
-    color: var(--color-2);
-    padding: 0px 10px;
-    border-radius: 16px;
-    font-size: 0.85rem;
-    width: fit-content;
-}
-
-.chip button {
-    background: none;
-    border: none;
-    margin-left: 0.4rem;
-    cursor: pointer;
-    color: var(--color-2);
     font-weight: bold;
 }
 
-.chipContainer input {
-    border: none;
-    outline: none;
+.saveBtn:hover {
+    background-color: var(--color-accent-hover);
+}
+
+/* Sidebar aside */
+.aside {
     flex: 1;
-    min-width: 100px;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    background-color: var(--color-bg-2);
+    box-shadow: var(--shadow);
 }

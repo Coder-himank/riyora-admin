@@ -26,7 +26,7 @@ export const ProductsIndex = () => {
         fetchProducts();
     }, []);
 
-    const baseImageUrl = process.env.IMAGE_BASE_URL
+    const baseImageUrl = process.env.NEXT_PUBLIC_IMAGE_BASE_URL
 
 
     return (
@@ -44,7 +44,7 @@ export const ProductsIndex = () => {
                             <div key={item._id} className={styles.listItem}>
                                 <div className={styles.itemImageWrapper}>
                                     <Image
-                                        src={baseImageUrl + item?.imageUrl[0]}
+                                        src={item?.imageUrl[0]}
                                         width={100}
                                         height={100}
                                         alt={item.name || "Product Image"}

@@ -1,0 +1,49 @@
+/* Chip container */
+.chipContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border-radius: var(--radius);
+    flex-direction: column;
+    background: var(--color-bg-1);
+}
+
+.chipHolder {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chip {
+    display: flex;
+    align-items: center;
+    background: var(--color-bg-3);
+    color: var(--color-1);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+}
+
+.chip button {
+    background: none;
+    border: none;
+    margin-left: 0.4rem;
+    cursor: pointer;
+    color: var(--color-1);
+    font-weight: bold;
+}
+
+.chip button:hover {
+    color: var(--color-danger);
+}
+
+.chipContainer input {
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--color-1);
+    flex: 1;
+    min-width: 100px;
+}
