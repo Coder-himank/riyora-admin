@@ -1,0 +1,77 @@
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.modalContent {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 500px;
+    max-width: 90%;
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+}
+
+.header {
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    justify-content: space-between;
+}
+
+.modalContent button {
+    padding: 5px 8px;
+    outline: none;
+    /* background: none; */
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.courierOption {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: left;
+    align-items: center;
+    padding: 10px 4px;
+    border-bottom: 1px solid #eee;
+}
+
+.courierOption button {
+    background-color: transparent;
+    border: 1px solid;
+    color: gold;
+}
+
+.selected {
+    border-radius: 5px;
+    background-color: rgba(172, 172, 172, 0.255);
+}
+
+.selected button {
+    color: green;
+
+}
+
+.close {
+    background: red;
+    border: 1px solid red;
+}
+
+.confirm {
+    color: white;
+    border: 1px solid green;
+    background: green;
+}

@@ -11,7 +11,8 @@ import { MultiImageUploader } from "@/components/ui/ImageUploader";
 export const arrayMainFields = [
     { label: "Name", name: "name" },
     { label: "Description", name: "description" },
-    { label: "Price", name: "price" },
+    { label: "MRP", name: "mrp" },
+    { label: "Selling Price", name: "sellingPrice" },
     { label: "Stock", name: "stock" },
     { label: "Promotion Codes", name: "promotionCode" },
     { label: "Discount Percentage", name: "discountPercentage" },
@@ -120,6 +121,12 @@ const EditProductPage = () => {
         }))
     }
 
+    const calculateDiscount = () => {
+        const priceDifference =  (parseInt(product.mrp) || 0) - (parseInt(product.sellingPrice) || 0)
+        const discountPercentage  = parseInt((priceDifference * 100) / product.mrp) + "%"
+        setProduct((prev)=> ({...prev, discountPercentage}))
+    }
+
 
     if (loading) return <p>Loading...</p>;
     if (!product) return <p>Product not found</p>;
@@ -180,7 +187,7 @@ const EditProductPage = () => {
                         fileFolder={"Products"}
                     />
 
-                    <button type="submit" className={styles.saveBtn}>Save Product</button>
+                   
                 </form>
 
                 {/* Aside SEO Section */}
@@ -196,9 +203,11 @@ const EditProductPage = () => {
                                     name={field.name}
                                     value={getNestedValue(product, field.name) || ''}
                                     onChange={handleChange}
+                                    onKeyUp={field.name === "mrp" || field.name === "sellingPrice" ? calculateDiscount : ()=>{}}
                                 />
                             </div>
                         ))}
+                         <button type="submit" className={styles.saveBtn}>Save Product</button>
                     </form>
                 </div>
             </div>

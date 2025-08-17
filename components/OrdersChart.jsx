@@ -15,14 +15,14 @@ export default function OrdersChart({ data }) {
                         style={{ borderRadius: "8px" }}
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                        <XAxis dataKey="month" stroke="#ccc" />
-                        <YAxis stroke="#ccc" />
+                        <XAxis dataKey="month" stroke="#000000ff" />
+                        <YAxis stroke="#000000ff" />
                         <Tooltip
                             contentStyle={{ backgroundColor: "#333", border: "none" }}
-                            itemStyle={{ color: "#fff" }}
-                            labelStyle={{ color: "#fff" }}
+                            itemStyle={{ color: "#000000ff" }}
+                            labelStyle={{ color: "#000000ff" }}
                         />
-                        <Legend wrapperStyle={{ color: "#ccc" }} />
+                        <Legend wrapperStyle={{ color: "#2b2b2bff" }} />
                         <Bar dataKey="orders" fill="#82ca9d" />
                     </BarChart>
 

@@ -1,7 +1,6 @@
 /* Page container */
 .container {
     color: var(--color-1);
-    padding: 2rem;
 }
 
 /* Header */
@@ -33,12 +32,17 @@
 /* Form box */
 .form {
     flex: 2;
-    background-color: var(--color-bg-2);
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+}
+.form .section{
     padding: 1.5rem;
     border-radius: var(--radius);
+    background-color: var(--color-bg-2);
     box-shadow: var(--shadow);
-}
 
+}
 /* Input fields */
 .inputDiv {
     display: flex;
@@ -63,7 +67,7 @@
 
 .inputDiv input:focus {
     border-color: var(--color-accent);
-    background-color: #555;
+    background-color: #efefef;
 }
 
 .filePickerBtn {
@@ -105,4 +109,5 @@
     border-radius: var(--radius);
     background-color: var(--color-bg-2);
     box-shadow: var(--shadow);
+    max-height: fit-content;
 }

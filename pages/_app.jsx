@@ -1,6 +1,13 @@
 import "@/styles/globals.css";
 import Navbar from "@/components/navbar";
-import { Toaster } from "react-hot-toast";
+import dynamic from "next/dynamic";
+
+// ✅ Dynamically import Toaster so it's never server-rendered
+const Toaster = dynamic(
+  () => import("react-hot-toast").then((mod) => mod.Toaster),
+  { ssr: false }
+);
+
 export default function App({ Component, pageProps }) {
   return (
     <>
