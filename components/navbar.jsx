@@ -48,6 +48,7 @@ export default function Navbar() {
             </div>
 
             {/* Profile */}
+                <Link href={"/adminDashboard"}>
             <div className="sidebar-profile">
                 <Image src="/images/user.png" width={40} height={40} alt="User Profile" />
                 
@@ -55,6 +56,7 @@ export default function Navbar() {
                         <span className="username">Username</span>
                     }
             </div>
+                    </Link>
 
             {/* Navigation Sections */}
             <nav>
