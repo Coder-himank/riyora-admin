@@ -1,0 +1,135 @@
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 20px;
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.profileCard {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.profileCard h2 {
+  margin-bottom: 10px;
+  font-size: 1.4rem;
+}
+
+.permissions {
+  margin: 1rem 0;
+}
+
+.permissions h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.permissions ul {
+  list-style: disc inside;
+  padding-left: 10px;
+  color: #555;
+}
+
+.passwordForm {
+  display: flex;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.passwordForm input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.passwordForm button {
+  padding: 8px 14px;
+  border: none;
+  background: #0070f3;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.passwordForm button:hover {
+  background: #005bb5;
+}
+
+.redirectBtn {
+  margin-top: 1rem;
+  padding: 10px 16px;
+  border: none;
+  background: #28a745;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.redirectBtn:hover {
+  background: #218838;
+}
+.signout{
+  /* margin-top: 1rem; */
+  padding: 10px 16px;
+  border: none;
+  background: #dc3545;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 10px;
+}
+.subAdminSection {
+  margin-top: 2rem;
+}
+
+.subAdminSection h2 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.table th {
+  background: #f8f9fa;
+  font-weight: bold;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}

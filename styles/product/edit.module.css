@@ -30,13 +30,13 @@
 }
 
 /* Form box */
-.form {
+.form_1, .form_2 {
     flex: 2;
     display: flex;
     flex-direction: column;
     gap: 1.4rem;
 }
-.form .section{
+.form_1 .section, .form_2 .section{
     padding: 1.5rem;
     border-radius: var(--radius);
     background-color: var(--color-bg-2);
@@ -86,7 +86,7 @@
 }
 
 /* Save button */
-.saveBtn {
+.saveBtn,.deleteBtn {
     background-color: var(--color-accent);
     color: white;
     padding: 0.8rem 1.4rem;
@@ -96,14 +96,20 @@
     margin-top: 1rem;
     transition: background 0.3s;
     font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 0 0 20px -9px rgba(0, 0, 0, 0.258);
 }
 
 .saveBtn:hover {
     background-color: var(--color-accent-hover);
 }
 
+.deleteBtn{
+    background-color: red;
+}
+
 /* Sidebar aside */
-.aside {
+.form_2 {
     flex: 1;
     padding: 1.5rem;
     border-radius: var(--radius);
@@ -111,3 +117,4 @@
     box-shadow: var(--shadow);
     max-height: fit-content;
 }
+

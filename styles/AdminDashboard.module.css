@@ -1,0 +1,124 @@
+.container {
+  /* max-width: 800px; */
+  margin: 2rem auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form {
+    display: flex;
+    margin-bottom: 20px;
+    flex-direction: column;
+}
+
+.form section{
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 20px; 
+    width: fit-content;
+}
+.form input,
+.form select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: none;
+  background: #0070f3;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  max-width: 200px;
+}
+
+.btn:hover {
+  background: #005bb5;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.table .actions {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 100%;
+}
+
+.editBtn {
+  background: #ffc107;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.deleteBtn {
+  background: #e74c3c;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+}
+
+.editBtn:hover {
+  background: #e0a800;
+}
+
+.deleteBtn:hover {
+  background: #c0392b;
+}
+.permissionsBox {
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+  margin: 10px 0;
+  gap: 20px;
+}
+
+.permissionGroup {
+  /* width: 100%; */
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.permissionGroupTitle {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.permissionsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}

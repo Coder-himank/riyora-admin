@@ -6,7 +6,7 @@ export default function ChipInput({ name, values = [], onChange }) {
     const [inputValue, setInputValue] = useState("");
 
     const handleKeyDown = (e) => {
-        if (e.key === "," || e.key === "Enter") {
+        if (e.key === "," || e.key === "Enter" ) {
             e.preventDefault();
             const trimmed = inputValue.trim();
             if (trimmed && !values.includes(trimmed)) {

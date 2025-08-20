@@ -1,42 +1,85 @@
-// middleware.js
 import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
+// API permissions
+const API_PERMISSIONS = {
+  "/api/productApi": ["manage_products"],
+  "/api/AdminusersApi": ["manage_users"],
+  "/api/ordersApi": ["manage_orders"],
+};
 
-// Define which routes should be protected
-const protectedRoutes = ["/dashboard", "/profile", "/settings"];
+// Page permissions (static + dynamic with regex)
+const PAGE_ROUTES = [
+  { pattern: /^\/admin$/, perms: ["manage_users", "manage_products", "manage_orders"] },
+  { pattern: /^\/products$/, perms: ["manage_products"] },
+  { pattern: /^\/users$/, perms: ["manage_users"] },
+  { pattern: /^\/orders$/, perms: ["manage_orders"] },
+  { pattern: /^\/products\/new$/, perms: ["create_products", "manage_products"] },
+  { pattern: /^\/blogs\/new$/, perms: ["create_blogs", "manage_blogs"] },
+  { pattern: /^\/[^/]+\/addUser$/, perms: ["create_users", "manage_users"] },
+  { pattern: /^\/products\/[^/]+\/edit$/, perms: ["update_products", "manage_products"] },
+  { pattern: /^\/blogs\/[^/]+\/editor$/, perms: ["update_blogs", "manage_blogs"] },
+];
 
 export async function middleware(req) {
-    const { pathname } = req.nextUrl;
+  const { pathname } = req.nextUrl;
 
-    // Check if the current path is a protected route
-    if (protectedRoutes.some((route) => pathname.startsWith(route))) {
-        const token = req.cookies.get("auth-token")?.value; // Use HttpOnly cookie for security
+  // Public routes (auth pages, static assets)
+  if (
+    pathname.startsWith("/api/auth") ||
+    pathname === "/authenticate" ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon.ico")
+  ) {
+    return NextResponse.next();
+  }
 
-        if (!token) {
-            // If no token, redirect to login
-            const loginUrl = new URL("/login", req.url);
-            loginUrl.searchParams.set("redirect", pathname); // so user goes back after login
-            return NextResponse.redirect(loginUrl);
+  // ✅ Get NextAuth JWT
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  // If no session → redirect to login
+  if (!token) {
+    
+    const loginUrl = new URL("/authenticate", req.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    console.log(`Redirecting to login: ${loginUrl}`);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // ✅ API protection
+  if (pathname.startsWith("/api")) {
+    for (const [apiPath, requiredPerms] of Object.entries(API_PERMISSIONS)) {
+      if (pathname.startsWith(apiPath)) {
+        const hasPermission = requiredPerms.every((perm) =>
+          token.permissions?.includes(perm)
+        );
+        if (!hasPermission) {
+          return new NextResponse(
+            JSON.stringify({ error: "Forbidden: insufficient permissions" }),
+            { status: 403, headers: { "Content-Type": "application/json" } }
+          );
         }
-
-        try {
-            // Optional: verify JWT token here
-            // Example using jose library:
-            // const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET));
-            // if (!payload) throw new Error("Invalid token");
-
-            return NextResponse.next(); // Allow request
-        } catch (err) {
-            console.error("Auth error:", err);
-            const loginUrl = new URL("/login", req.url);
-            return NextResponse.redirect(loginUrl);
-        }
+      }
     }
+  } else {
+    // ✅ Page protection
+    for (const route of PAGE_ROUTES) {
+      if (route.pattern.test(pathname)) {
+        console.log(pathname);
+        
+        const hasPermission = route.perms.every((perm) =>
+          token.permissions?.includes(perm)
+        );
+        if (!hasPermission) {
+          return NextResponse.redirect(new URL("/unauthorized", req.url));
+        }
+      }
+    }
+  }
 
-    return NextResponse.next(); // Allow non-protected routes
+  return NextResponse.next();
 }
 
-// Apply middleware only to specific routes
 export const config = {
-    matcher: ["/dashboard/:path*", "/profile/:path*", "/settings/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

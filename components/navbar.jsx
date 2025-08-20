@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { useState } from 'react';
+import {useSession} from "next-auth/react";
 import { Home, Package, ShoppingCart, FileText, CreditCard } from 'lucide-react'; // icons
 import { FaBars } from 'react-icons/fa';
 const navSections = [
@@ -30,6 +31,10 @@ const navSections = [
 export default function Navbar() {
     const pathname = usePathname();
     const [collapse, setCollapse] = useState(false);
+    const { data: session } = useSession();
+
+    console.log(session);
+    
 
     return (
         <aside className={`${collapse ? "sidebar-collapsed" : ""} sidebar`}>
@@ -48,12 +53,12 @@ export default function Navbar() {
             </div>
 
             {/* Profile */}
-                <Link href={"/adminDashboard"}>
+                <Link href={session?.user ? `/${session?.user?.id}` : "/authenticate"} className="sidebar-profile-link">
             <div className="sidebar-profile">
                 <Image src="/images/user.png" width={40} height={40} alt="User Profile" />
                 
                     {!collapse &&
-                        <span className="username">Username</span>
+                        <span className="username">{session?.user?.name || "Login"}</span>
                     }
             </div>
                     </Link>
