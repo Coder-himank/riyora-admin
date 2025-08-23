@@ -6,11 +6,16 @@ export default function ChipInput({ name, values = [], onChange }) {
     const [inputValue, setInputValue] = useState("");
 
     const handleKeyDown = (e) => {
-        if (e.key === "," || e.key === "Enter" ) {
+        if (!e || e.key === "," || e.key === "Enter" ) {
             e.preventDefault();
             const trimmed = inputValue.trim();
+            const allValues = trimmed.split(",").map(v => v.trim()).filter(v => v) || [];
             if (trimmed && !values.includes(trimmed)) {
                 onChange([...values, trimmed]);
+            }
+
+            if(allValues.length > 0 && !allValues.some(v => values.includes(v))) {
+                onChange([...values, ...allValues]);
             }
             setInputValue("");
         }
@@ -37,6 +42,7 @@ export default function ChipInput({ name, values = [], onChange }) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
+                onBlur={handleKeyDown}
                 placeholder="Type and press comma"
             />
         </div>

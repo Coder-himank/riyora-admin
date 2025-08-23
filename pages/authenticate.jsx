@@ -1,12 +1,13 @@
 import { useState } from "react";
 import styles from "@/styles/Auth.module.css";
 import { signIn, signOut, useSession } from "next-auth/react";
-
+import {useRouter} from "next/router";
 export default function Authenticate() {
     const { data: session, status } = useSession();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+    const router = useRouter();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -21,6 +22,7 @@ export default function Authenticate() {
             setMessage("Invalid credentials");
         } else {
             setMessage("Login successful!");
+            router.push("/")
         }
     };
 

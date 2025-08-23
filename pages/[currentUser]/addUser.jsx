@@ -20,7 +20,8 @@ const availablePermissions = {
     "delete_products",
   ],
   Users: ["manage_users", "create_users", "edit_users", "delete_users"],
-  Orders: ["manage_orders", "create_orders", "edit_orders", "delete_orders"],
+  Blogs: ["manage_blogs", "create_blogs", "edit_blogs", "delete_blogs"],
+  Orders: ["manage_orders", "delete_orders"],
 };
 
 

@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import ChipInput from "@/components/ui/ChipInput";
 import ImageUploader from "@/components/ui/ImageUploader";
 import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export function BlogSection({ section, index, updateSection, removeImage }) {
     return (
@@ -43,6 +45,9 @@ export default function BlogEditor({ existingBlog }) {
         tags: existingBlog?.tags || [],
         description: existingBlog?.description || ""
     });
+
+    const {data:session} = useSession();
+    const router = useRouter();
 
     const handleChange = (field, value) => {
         setBlogData(prev => ({
@@ -90,6 +95,7 @@ export default function BlogEditor({ existingBlog }) {
         toast.success(res.status);
         if ([200, 201].includes(res.status)) {
             toast.success("Saved Successfully");
+            router.push(session?.user?.id+"/blogs");
         } else {
             toast.error("Failed");
         }

@@ -14,12 +14,11 @@ const PAGE_ROUTES = [
   { pattern: /^\/products$/, perms: ["manage_products"] },
   { pattern: /^\/users$/, perms: ["manage_users"] },
   { pattern: /^\/orders$/, perms: ["manage_orders"] },
-  { pattern: /^\/products\/new$/, perms: ["create_products", "manage_products"] },
-  { pattern: /^\/blogs\/new$/, perms: ["create_blogs", "manage_blogs"] },
   { pattern: /^\/[^/]+\/addUser$/, perms: ["create_users", "manage_users"] },
-  { pattern: /^\/products\/[^/]+\/edit$/, perms: ["update_products", "manage_products"] },
-  { pattern: /^\/blogs\/[^/]+\/editor$/, perms: ["update_blogs", "manage_blogs"] },
+  { pattern: /^\/products\/[^/]+\/edit$/, perms: ["edit_products", "manage_products"] },
+  { pattern: /^\/blogs\/[^/]+\/editor$/, perms: ["edit_blogs", "manage_blogs"] },
 ];
+
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;

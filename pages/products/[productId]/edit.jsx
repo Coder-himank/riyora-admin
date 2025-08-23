@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import toast from "react-hot-toast";
 import styles from "@/styles/product/edit.module.css";
+import { useSession } from "next-auth/react";
 
 import ChipInput from "@/components/ui/ChipInput";
 import { setNestedValue, getNestedValue } from "@/lib/utils";
@@ -12,7 +13,7 @@ export const arrayMainFields = [
   { label: "Name", name: "name" },
   { label: "Description", name: "description" },
   { label: "MRP", name: "mrp" },
-  { label: "Selling Price", name: "sellingPrice" },
+  { label: "Selling Price", name: "price" },
   { label: "Stock", name: "stock" },
   { label: "Promotion Codes", name: "promotionCode" },
   { label: "Discount Percentage", name: "discountPercentage" },
@@ -58,6 +59,7 @@ export const arrayFields = [
 const EditProductPage = () => {
   const router = useRouter();
   const { productId } = router.query;
+  const { data:session } = useSession();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,7 @@ const EditProductPage = () => {
         name: "",
         description: "",
         mrp: "",
-        sellingPrice: "",
+        price: "",
         stock: "",
         promotionCode: "",
         discountPercentage: "",
@@ -113,6 +115,7 @@ const EditProductPage = () => {
       if (productId === "new") {
         await axios.post(`/api/productApi`, product);
         toast.success("Product Created");
+        router.push("/"+session?.user?.id+"/products");
       } else {
         await axios.put(`/api/productApi?productId=${productId}`, product);
         toast.success("Product updated");
@@ -149,7 +152,7 @@ const EditProductPage = () => {
 
   const calculateDiscount = () => {
     const mrp = parseFloat(product?.mrp) || 0;
-    const sp = parseFloat(product?.sellingPrice) || 0;
+    const sp = parseFloat(product?.price) || 0;
     if (mrp > 0 && sp > 0) {
       const discountPercentage = Math.round(((mrp - sp) * 100) / mrp);
       setProduct((prev) => ({ ...prev, discountPercentage }));
@@ -186,6 +189,8 @@ const EditProductPage = () => {
               <section key={i} className={styles.section}>
                 {sec.map((field, j) => (
                   <div key={j} className={styles.inputDiv}>
+
+
                     <label htmlFor={field.name}>{field.label}</label>
                     {[
                       "tags",
@@ -250,7 +255,7 @@ const EditProductPage = () => {
                   value={getNestedValue(product, field.name) || ""}
                   onChange={handleChange}
                   onKeyUp={
-                    field.name === "mrp" || field.name === "sellingPrice"
+                    field.name === "mrp" || field.name === "price"
                       ? calculateDiscount
                       : () => {}
                   }
