@@ -1,7 +1,7 @@
 // app/api/analytics/route.js
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/database";
-import Order from "@/models/Order";
+import Order from "@/models/order";
 
 /**
  * Helper utilities:
