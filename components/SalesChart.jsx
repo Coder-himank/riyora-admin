@@ -24,12 +24,10 @@ export default function SalesChart({ data = [], title = "Sales Over Time" }) {
             <YAxis stroke="#ccc" />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1e1e1e",
+                backgroundColor: "#c7c3c3ff",
                 border: "none",
                 borderRadius: "8px",
               }}
-              itemStyle={{ color: "var(--color-primary)" }}
-              labelStyle={{ color: "var(--color-primary)" }}
             />
             <Legend wrapperStyle={{ color: "#ccc" }} />
             <Line

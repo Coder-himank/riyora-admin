@@ -62,7 +62,10 @@ h1, h2, h3 {
   transition: width 0.3s ease;
   z-index: 10;
 }
-
+a{
+  color: var(--color-primary);
+  text-decoration: none;
+}
 .bars{
   width: 80px;
   display: flex;
@@ -95,9 +98,11 @@ body.sidebar-collapsed {
   white-space: nowrap;
   height: 100px;
   width: 100%;
+color: #f3f0f0;
 }
 
 .sidebar-logo img {
+  display: none;
   max-width: 100%;
   height: auto;
   object-fit: contain;
@@ -113,6 +118,7 @@ body.sidebar-collapsed {
   background: rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-md);
   white-space: nowrap;
+  color: var(--color-accent);
 }
 
 .sidebar-collapsed .sidebar-profile {

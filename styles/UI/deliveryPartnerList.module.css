@@ -75,3 +75,9 @@
     border: 1px solid green;
     background: green;
 }
+
+.confirm:disabled{
+    background: grey;
+    border: 1px solid grey;
+    cursor: not-allowed;
+}

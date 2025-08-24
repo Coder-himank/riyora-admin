@@ -35,9 +35,8 @@ export default function OrdersChart({ data = [], previousData = [] }) {
             <XAxis dataKey="label" stroke="#ccc" />
             <YAxis stroke="#ccc" />
             <Tooltip
-              contentStyle={{ backgroundColor: "#1e1e1e", border: "none", borderRadius: "8px" }}
-              itemStyle={{ color: "var(--color-primary)" }}
-              labelStyle={{ color: "var(--color-primary)" }}
+              contentStyle={{ backgroundColor: "#c7c3c3ff", border: "none", borderRadius: "8px" }}
+
             />
             <Legend wrapperStyle={{ color: "#ccc" }} />
             <Bar dataKey="orders" fill="#82ca9d" name="Current" />
