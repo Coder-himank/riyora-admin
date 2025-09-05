@@ -26,16 +26,39 @@ export const ProductsIndex = () => {
   }, []);
 
   const handleDelete = async (productId) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    if (!confirm("Are you sure you want to hide this product?")) return;
+
     try {
-      await axios.delete(`/api/productApi?productId=${productId}`);
-      setProducts(products.filter((item) => item._id !== productId));
-      alert("Product deleted successfully");
+      await axios.put(`/api/productApi?productId=${productId}`, { visible: false });
+
+      setProducts((prevProducts) =>
+        prevProducts.map((item) =>
+          item._id === productId ? { ...item, visible: false } : item
+        )
+      );
     } catch (err) {
-      console.error("Failed to delete product", err);
-      alert("Failed to delete product");
+      console.error("Failed to hide product", err);
+      alert("Failed to hide product");
     }
   };
+
+  const handleRestore = async (productId) => {
+    if (!confirm("Are you sure you want to restore this product?")) return;
+
+    try {
+      await axios.put(`/api/productApi?productId=${productId}`, { visible: true });
+
+      setProducts((prevProducts) =>
+        prevProducts.map((item) =>
+          item._id === productId ? { ...item, visible: true } : item
+        )
+      );
+    } catch (err) {
+      console.error("Failed to restore product", err);
+      alert("Failed to restore product");
+    }
+  };
+
 
   return (
     <div className={styles.container}>
@@ -54,7 +77,7 @@ export const ProductsIndex = () => {
             <p className={styles.noProducts}>No products available</p>
           ) : (
             products.map((item) => (
-              <div key={item._id} className={styles.listItem}>
+              <div key={item._id} className={`${styles.listItem} ${item.visible ? '' : styles.notVissibleListItem}`}>
                 <div className={styles.itemImageWrapper}>
                   <Image
                     src={item?.imageUrl?.[0] || "/placeholder.png"}
@@ -72,12 +95,23 @@ export const ProductsIndex = () => {
                     <Link href={`/products/${item._id}/edit`}>
                       <button className={styles.editBtn}>Edit</button>
                     </Link>
-                    <button
-                      onClick={() => handleDelete(item._id)}
-                      className={styles.deleteBtn}
-                    >
-                      Delete
-                    </button>
+
+                    {item.visible ?
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className={styles.deleteBtn}
+                      >
+                        Delete
+                      </button>
+                      :
+                      <button
+                        onClick={() => handleRestore(item._id)}
+                        className={styles.restoreBtn}
+                      >
+                        Restore
+                      </button>
+
+                    }
                   </div>
                 </div>
               </div>

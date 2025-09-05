@@ -1,120 +1,237 @@
-/* Page container */
+/* ================= Page Container ================= */
 .container {
-    color: var(--color-1);
+  color: var(--color-1);
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-bg-1);
 }
 
-/* Header */
+/* ================= Header ================= */
 .header {
-    border-bottom: 2px solid var(--color-2);
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+  border-bottom: 2px solid var(--color-2);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
 }
 
 .header h2 {
-    font-size: 1.75rem;
-    font-weight: bold;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
 .header p {
-    font-weight: 300;
-    padding-top: 0.5rem;
-    opacity: 0.85;
+  font-weight: 300;
+  padding-top: 0.5rem;
+  opacity: 0.85;
 }
 
-/* Layout */
+/* ================= Layout ================= */
 .form_container {
-    width: 100%;
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
+  width: 100%;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
-/* Form box */
+/* ================= Form Boxes ================= */
 .form_1, .form_2 {
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
-.form_1 .section, .form_2 .section{
-    padding: 1.5rem;
-    border-radius: var(--radius);
-    background-color: var(--color-bg-2);
-    box-shadow: var(--shadow);
 
+.form_1 .section, .form_2 .section {
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  background-color: var(--color-bg-2);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
 }
-/* Input fields */
+
+/* ================= Input Fields ================= */
 .inputDiv {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
 }
 
 .inputDiv label {
-    font-weight: 500;
-    margin-bottom: 0.4rem;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
 }
 
-.inputDiv input {
-    padding: 0.6rem;
-    border: 1px solid transparent;
-    border-radius: var(--radius);
-    outline: none;
-    background-color: var(--color-bg-3);
-    color: var(--color-1);
-    transition: border 0.2s, background 0.2s;
+.inputDiv input, .inputDiv textarea, .variantBox input, .applyStepBox input {
+  padding: 0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  outline: none;
+  background-color: var(--color-bg-3);
+  color: var(--color-1);
+  transition: border 0.2s, background 0.2s;
 }
 
-.inputDiv input:focus {
-    border-color: var(--color-accent);
-    background-color: #efefef;
+.inputDiv input:focus, .inputDiv textarea:focus, .variantBox textarea:focus {
+  border-color: var(--color-accent);
+  background-color: #efefef;
 }
 
+.container textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* ================= File Picker ================= */
 .filePickerBtn {
-    display: inline-block;
-    background-color: #444;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    text-align: center;
+  display: inline-block;
+  background-color: #444;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: center;
+  transition: background 0.3s;
 }
 
 .filePickerBtn:hover {
-    background-color: #666;
+  background-color: #666;
 }
 
-/* Save button */
-.saveBtn,.deleteBtn {
-    background-color: var(--color-accent);
-    color: white;
-    padding: 0.8rem 1.4rem;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    margin-top: 1rem;
-    transition: background 0.3s;
-    font-weight: bold;
-    border-radius: 5px;
-    box-shadow: 0 0 20px -9px rgba(0, 0, 0, 0.258);
+/* ================= Buttons ================= */
+.saveBtn, .deleteBtn {
+  background-color: var(--color-accent);
+  color: white;
+  padding: 0.8rem 1.4rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.3s, transform 0.2s;
+  font-weight: bold;
+  box-shadow: 0 0 20px -9px rgba(0, 0, 0, 0.258);
 }
 
 .saveBtn:hover {
-    background-color: var(--color-accent-hover);
+  background-color: var(--color-accent-hover);
+  transform: translateY(-1px);
 }
 
-.deleteBtn{
-    background-color: red;
+.deleteBtn {
+  background-color: red;
 }
 
-/* Sidebar aside */
+.deleteBtn:hover {
+  transform: translateY(-1px);
+}
+
+/* ================= Sidebar ================= */
 .form_2 {
-    flex: 1;
-    padding: 1.5rem;
-    border-radius: var(--radius);
-    background-color: var(--color-bg-2);
-    box-shadow: var(--shadow);
-    max-height: fit-content;
+  flex: 1;
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  background-color: var(--color-bg-2);
+  box-shadow: var(--shadow);
+  max-height: fit-content;
 }
 
+/* ================= Variant Section ================= */
+.variantRow {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.variantRow input {
+  flex: 1;
+  min-width: 120px;
+}
+.variants{
+    
+    width: 100%;
+}
+.variantBox{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ================= How to Apply Section ================= */
+
+.applySection{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.applyStepBox{
+    background-color: #d6d6d6;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px ;
+}
+
+
+/* ================= Sections Titles ================= */
+.section h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.section_head{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.section_head button{
+    padding: 10px;
+    background-color: none;
+    font-weight: 600;
+}
+
+/* ================= Multi-Image Section ================= */
+.multiImageContainer {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.multiImageContainer img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* ================= Chips ================= */
+.chipContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  background-color: var(--color-accent);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 1024px) {
+  .form_container {
+    flex-direction: column;
+  }
+
+  .form_1, .form_2 {
+    flex: 1;
+  }
+}

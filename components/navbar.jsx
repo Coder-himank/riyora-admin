@@ -33,7 +33,6 @@ export default function Navbar() {
     const [collapse, setCollapse] = useState(false);
     const { data: session } = useSession();
 
-    console.log(session);
     
 
     return (

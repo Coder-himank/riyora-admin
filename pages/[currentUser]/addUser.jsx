@@ -32,7 +32,6 @@ const availablePermissions = {
   async function fetchUsers() {
     const res = await axios.get("/api/AdminusersApi"); // make sure API path matches
     setUsers(res.data);
-    console.log(res.data);
     
   }
 
@@ -51,7 +50,6 @@ const availablePermissions = {
       updatedpermissions = updatedpermissions.filter((p) => p !== value);
     }
 
-    console.log(updatedpermissions);
     
 
     setForm({ ...form, permissions: updatedpermissions });

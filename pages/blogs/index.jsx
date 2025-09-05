@@ -12,7 +12,7 @@ export default function BlogListPage() {
 
     const fetchBlogs = async () => {
         try {
-            const res = await axios.get("/api/blogs");
+            const res = await axios.get("/api/blogsApi");
             if (!res.status === 200) {
                 toast.error("Error Fetching Blogs Data")
             };
@@ -26,16 +26,45 @@ export default function BlogListPage() {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm("Are you sure you want to delete this blog?")) return;
+        if (!confirm("Are you sure you want to hide this blog?")) return;
 
         try {
-            const res = await axios.delete(`/api/Blogs?blogId=${id}`);
-            if (!res.ok) throw new Error("Failed to delete");
-            setBlogs(blogs.filter((b) => b._id !== id));
+            const res = await axios.put(`/api/blogsApi?blogId=${id}`, { visible: false });
+            if (res.status === 200) {
+                // update local state
+                setBlogs((prev) =>
+                    prev.map((item) =>
+                        item._id === id ? { ...item, visible: false } : item
+                    )
+                );
+                toast.success("Blog hidden successfully");
+            }
         } catch (err) {
             console.error(err);
+            toast.error("Failed to hide blog");
         }
     };
+
+    const handleRestore = async (id) => {
+        if (!confirm("Are you sure you want to rstore this blog?")) return;
+
+        try {
+            const res = await axios.put(`/api/blogsApi?blogId=${id}`, { visible: true });
+            if (res.status === 200) {
+                // update local state
+                setBlogs((prev) =>
+                    prev.map((item) =>
+                        item._id === id ? { ...item, visible: true } : item
+                    )
+                );
+                toast.success("Blog resore successfully");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to rstore blog");
+        }
+    };
+
 
     useEffect(() => {
         fetchBlogs();
@@ -58,7 +87,7 @@ export default function BlogListPage() {
             ) : (
                 <div className={styles.grid}>
                     {blogs.map((blog) => (
-                        <div key={blog._id} className={styles.card}>
+                        <div key={blog._id} className={`${blog.visible ? '' : styles.cardnotVissible} ${styles.card}`}>
                             {blog.sections?.[0]?.image && (
                                 <img
                                     src={blog.sections[0].image}
@@ -80,12 +109,21 @@ export default function BlogListPage() {
                                 >
                                     ✏ Edit
                                 </Link>
-                                <button
-                                    onClick={() => handleDelete(blog._id)}
-                                    className={`${styles.button} ${styles.buttonDanger}`}
-                                >
-                                    🗑 Delete
-                                </button>
+                                {
+                                    blog.visible ?
+                                        <button
+                                            onClick={() => handleDelete(blog._id)}
+                                            className={`${styles.button} ${styles.buttonDanger}`}
+                                        >
+                                            🗑 Delete
+                                        </button> :
+                                        <button
+                                            onClick={() => handleRestore(blog._id)}
+                                            className={`${styles.button}`}
+                                        >
+                                            Restore
+                                        </button>
+                                }
                             </div>
                         </div>
                     ))}

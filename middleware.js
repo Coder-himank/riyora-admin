@@ -6,6 +6,7 @@ const API_PERMISSIONS = {
   "/api/productApi": ["manage_products"],
   "/api/AdminusersApi": ["manage_users"],
   "/api/ordersApi": ["manage_orders"],
+  "/api/blogsApi": ["manage_blogs"],
 };
 
 // Page permissions (static + dynamic with regex)
@@ -64,7 +65,6 @@ export async function middleware(req) {
     // ✅ Page protection
     for (const route of PAGE_ROUTES) {
       if (route.pattern.test(pathname)) {
-        console.log(pathname);
         
         const hasPermission = route.perms.every((perm) =>
           token.permissions?.includes(perm)

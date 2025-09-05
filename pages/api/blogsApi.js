@@ -22,7 +22,6 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
         try {
             const data = req.body;
-            console.log(data);
 
             const blog = await Blog.create(data);
             return res.status(201).json({ message: "Created successfully", blog });
@@ -35,6 +34,7 @@ export default async function handler(req, res) {
         try {
             if (blogId) {
                 const blog = await Blog.findById(blogId);
+                
                 if (!blog) return res.status(404).json({ message: "Blog not found" });
                 return res.status(200).json(blog);
             }

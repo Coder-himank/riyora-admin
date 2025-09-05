@@ -6,6 +6,8 @@ import ImageUploader from "@/components/ui/ImageUploader";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import connectDB from "@/lib/database";
+import Blog from "@/lib/models/blog"
 
 export function BlogSection({ section, index, updateSection, removeImage }) {
     return (
@@ -36,7 +38,9 @@ export function BlogSection({ section, index, updateSection, removeImage }) {
     );
 }
 
-export default function BlogEditor({ existingBlog }) {
+export default function BlogEditor({existingBlog}) {
+
+    
     const [blogData, setBlogData] = useState({
         imgUrl: existingBlog?.imgUrl || null,
         title: existingBlog?.title || "",
@@ -86,9 +90,9 @@ export default function BlogEditor({ existingBlog }) {
 
         let res;
         if (existingBlog) {
-            res = await axios.put(`/api/blogs?blogId=${existingBlog._id}`, blogData)
+            res = await axios.put(`/api/blogsApi?blogId=${existingBlog._id}`, blogData)
         } else {
-            res = await axios.post(`/api/blogs`, blogData)
+            res = await axios.post(`/api/blogsApi`, blogData)
         }
 
 
@@ -178,18 +182,17 @@ export default function BlogEditor({ existingBlog }) {
 
 export async function getServerSideProps(context) {
     const { blogid } = context.params;
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+     await connectDB()
 
     if (blogid !== "new") {
         try {
+             const blog = await Blog.findById(blogid);
+                            
+            if (!blog) return { props: { existingBlog: null } };
 
-            const res = await axios.get(`${baseUrl}/api/blogs?blogId=${blogid}`);
-            const existingBlog = await res.data;
-
-            return { props: { existingBlog } };
+            return { props: { existingBlog : JSON.parse(JSON.stringify(blog))} };
         } catch (err) {
             console.log(err);
-            return { props: { existingBlog: null } };
         }
     }
 
