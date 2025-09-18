@@ -60,7 +60,7 @@
   margin-bottom: 0.4rem;
 }
 
-.inputDiv input, .inputDiv textarea, .variantBox input, .applyStepBox input {
+.inputDiv input, .inputDiv textarea, .fieldsInput input, .applyStepBox input {
   padding: 0.6rem;
   border: 1px solid transparent;
   border-radius: var(--radius);
@@ -70,7 +70,7 @@
   transition: border 0.2s, background 0.2s;
 }
 
-.inputDiv input:focus, .inputDiv textarea:focus, .variantBox textarea:focus {
+.inputDiv input:focus, .inputDiv textarea:focus, .fieldsInput textarea:focus {
   border-color: var(--color-accent);
   background-color: #efefef;
 }
@@ -133,6 +133,45 @@
   box-shadow: var(--shadow);
   max-height: fit-content;
 }
+/* ================ Box For variant, suitable, choose us============ */
+
+.inputBox{
+  
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+}
+
+.inputBox .boxHeader{
+  width: 100%;
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.inputBox .boxContent{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.inputBox .fieldsInput{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+  
+}
+
+.inputBox .boxImageWrapper{
+  width: 100%;
+  max-width: 300px;
+}
 
 /* ================= Variant Section ================= */
 .variantRow {
@@ -148,7 +187,6 @@
   min-width: 120px;
 }
 .variants{
-    
     width: 100%;
 }
 .variantBox{
