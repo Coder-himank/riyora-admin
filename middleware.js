@@ -29,7 +29,9 @@ export async function middleware(req) {
     pathname.startsWith("/api/auth") ||
     pathname === "/authenticate" ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon.ico")
+    pathname.startsWith("/favicon.ico") ||
+    pathname.startsWith("/images") 
+
   ) {
     return NextResponse.next();
   }

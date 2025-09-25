@@ -21,71 +21,74 @@ const uploadImage = async (e, ftype, setUploading, setDataFunction, fileFolder, 
         setUploading(false)
     }
 }
-export const ImageUploader = ({ image, setDataFunction, removeDataFunction, fileFolder }) => {
 
-    const [dragOver, setDragOver] = useState(false);
-    const [uploading, setUploading] = useState(false)
 
-    return (
-        <>
-            {/* Drag & Drop Zone */}
-            <div
-                className={`${styles.dropZone} ${dragOver ? styles.dragOver : ""}`}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => uploadImage(e, "Image Drop", setUploading, setDataFunction, fileFolder, setDragOver)}
-            >
+// export const ImageUploader = ({ image, setDataFunction, removeDataFunction, fileFolder }) => {
 
-                < input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }
-                    }
-                    // id={`fileInput-${idx}`}
-                    onChange={(e) => uploadImage(e, "File Select", setDataFunction, fileFolder)}
-                />
-                <label
-                    // htmlFor={`fileInput-${idx}`}
-                    className={`${styles.button} ${styles.buttonPrimary}`}
-                    style={{ marginLeft: "8px", cursor: "pointer" }}
-                >
-                    {uploading ? "Uploading..." : "Drag & drop image here or Choose File"}
-                </label>
+//     const [dragOver, setDragOver] = useState(false);
+//     const [uploading, setUploading] = useState(false)
 
-                {uploading && (
+//     return (
+//         <>
+//             {/* Drag & Drop Zone */}
+//             <div
+//                 className={`${styles.dropZone} ${dragOver ? styles.dragOver : ""}`}
+//                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+//                 onDragLeave={() => setDragOver(false)}
+//                 onDrop={(e) => uploadImage(e, "Image Drop", setUploading, setDataFunction, fileFolder, setDragOver)}
+//             >
 
-                    <div className={styles.imageWrapper}>
+//                 < input
+//                     type="file"
+//                     accept="image/*"
+//                     style={{ display: "none" }
+//                     }
+//                     // id={`fileInput-${idx}`}
+//                     onChange={(e) => uploadImage(e, "File Select", setDataFunction, fileFolder)}
+//                 />
+//                 <label
+//                     // htmlFor={`fileInput-${idx}`}
+//                     className={`${styles.button} ${styles.buttonPrimary}`}
+//                     style={{ marginLeft: "8px", cursor: "pointer" }}
+//                 >
+//                     {uploading ? "Uploading..." : "Drag & drop image here or Choose File"}
+//                 </label>
 
-                        <div
-                            className={styles.previewImageLoading}
-                        />
-                    </div>
-                )}
+//                 {uploading && (
 
-                {
-                    image && (
-                        <div className={styles.imageWrapper}>
-                            <img
-                                src={image}
-                                alt="Preview"
-                                className={styles.previewImage}
-                            />
-                            <button
-                                type="button"
-                                className={styles.removeImageBtn}
-                                onClick={removeDataFunction}
-                            >
-                                X
-                            </button>
-                        </div>
-                    )
-                }
-            </div >
-        </>
+//                     <div className={styles.imageWrapper}>
 
-    )
-}
-export const MultiImageUploader = ({ images, setDataFunction, removeDataFunction, fileFolder }) => {
+//                         <div
+//                             className={styles.previewImageLoading}
+//                         />
+//                     </div>
+//                 )}
+
+//                 {
+//                     image && (
+//                         <div className={styles.imageWrapper}>
+//                             <img
+//                                 src={image}
+//                                 alt="Preview"
+//                                 className={styles.previewImage}
+//                             />
+//                             <button
+//                                 type="button"
+//                                 className={styles.removeImageBtn}
+//                                 onClick={removeDataFunction}
+//                             >
+//                                 X
+//                             </button>
+//                         </div>
+//                     )
+//                 }
+//             </div >
+//         </>
+
+//     )
+// }
+// export const MultiImageUploader = ({ images, setDataFunction, removeDataFunction, fileFolder }) => {
+export const ImageUploader = ({ images, setDataFunction, removeDataFunction, fileFolder }) => {
 
     const [dragOver, setDragOver] = useState(false);
     const [uploading, setUploading] = useState(false)

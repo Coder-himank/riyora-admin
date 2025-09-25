@@ -1,0 +1,126 @@
+/* Compact preview bar */
+.previewBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.previewRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.previewThumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+.openBtn {
+  padding: 6px 12px;
+  background: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.openBtn:hover {
+  background: #005bb5;
+}
+
+/* Overlay Manager */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.manager {
+  width: 60%;
+  max-height: 80%;
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.closeBtn {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+.uploadSection {
+  border: 1px dashed #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+.card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: 0.2s ease;
+}
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card:hover {
+  border-color: #aaa;
+}
+.selected {
+  border-color: #0070f3;
+  box-shadow: 0 0 0 3px rgba(0, 118, 255, 0.3);
+}
+.deleteBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+.confirmBtn {
+  padding: 6px 12px;
+  background: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.confirmBtn:hover {
+  background: #005bb5;
+}

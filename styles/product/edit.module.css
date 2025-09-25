@@ -38,6 +38,10 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+
+  max-height: 100vh;
+  overflow: auto;
+
 }
 
 .form_1 .section, .form_2 .section {
@@ -60,12 +64,13 @@
   margin-bottom: 0.4rem;
 }
 
-.inputDiv input, .inputDiv textarea, .fieldsInput input, .applyStepBox input {
-  padding: 0.6rem;
+.inputDiv input, .inputDiv textarea, .fieldsInput input, .applyStepBox input, .variantBox input {
+  padding: 1rem;
   border: 1px solid transparent;
   border-radius: var(--radius);
   outline: none;
-  background-color: var(--color-bg-3);
+  background-color: #fff;
+  border-radius: 8px;
   color: var(--color-1);
   transition: border 0.2s, background 0.2s;
 }
@@ -131,7 +136,6 @@
   border-radius: var(--radius);
   background-color: var(--color-bg-2);
   box-shadow: var(--shadow);
-  max-height: fit-content;
 }
 /* ================ Box For variant, suitable, choose us============ */
 
@@ -151,12 +155,22 @@
   align-items: center;
 }
 
+
 .inputBox .boxContent{
   width: 100%;
   display: flex;
   align-items: center;
+  flex-direction: column;
   justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.inputBox .fieldBox{
+  display: grid ;
+  grid-template-columns: 200px 1fr;
+  gap: 10px;
+  align-items: flex-start;
+  background-color: whitesmoke;
 }
 
 .inputBox .fieldsInput{
@@ -164,13 +178,11 @@
   flex-direction: column;
   gap: 10px;
   width: 100%;
-  max-width: 300px;
   
 }
 
 .inputBox .boxImageWrapper{
   width: 100%;
-  max-width: 300px;
 }
 
 /* ================= Variant Section ================= */
@@ -182,10 +194,7 @@
   align-items: center;
 }
 
-.variantRow input {
-  flex: 1;
-  min-width: 120px;
-}
+
 .variants{
     width: 100%;
 }
@@ -233,6 +242,174 @@
     font-weight: 600;
 }
 
+.applySection {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.section_head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.section_head label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.section_head button {
+  background: #2563eb;
+  color: #fff;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease;
+}
+
+.section_head button:hover {
+  background: #1e40af;
+}
+
+.checkboxList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.checkboxItem:hover {
+  background: #f3f4f6;
+}
+
+.checkboxItem input[type="checkbox"] {
+  accent-color: #2563eb;
+  width: 16px;
+  height: 16px;
+}
+.applySteps{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.applyStepBox .stepsPlate{
+  width: 100%;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepsPlate div{ 
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+
+.checkBoxes{
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkPlate{
+  width: 100%;
+  max-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkPlate img{
+  max-width: 60px;
+  height: auto;
+  object-fit: contain;
+}
+.checkPlate div{ 
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.inputBox {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: #fff;
+}
+
+.boxHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.boxHeader button {
+  background: #ef4444;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.boxHeader button:hover {
+  background: #b91c1c;
+}
+
+.boxContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.boxContent input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+.boxImageWrapper {
+  margin-top: 0.5rem;
+}
+
+
 /* ================= Multi-Image Section ================= */
 .multiImageContainer {
   display: flex;
@@ -262,6 +439,73 @@
   border-radius: 4px;
   font-size: 0.85rem;
 }
+
+/* ===============================Steps ===================== */
+
+
+
+.cardsWrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: #fff;
+  border: 2px solid #eee;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.card:hover {
+  border-color: #ccc;
+}
+
+.selected {
+  border: 2px solid;
+  border-color: green;
+  /* box-shadow: 0 4px 10px rgba(76, 175, 239, 0.2); */
+}
+
+.imageWrapper {
+  margin-bottom: 0.8rem;
+  display: flex;
+  justify-content: center;
+}
+
+.cardContent {
+  text-align: center;
+}
+
+.cardContent h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.cardContent p {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+}
+
+.stepNumber {
+  margin-top: 0.6rem;
+  display: inline-block;
+  background: #4cafef;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+}
+
 
 /* ================= Responsive ================= */
 @media (max-width: 1024px) {

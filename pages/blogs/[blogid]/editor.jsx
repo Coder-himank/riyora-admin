@@ -2,7 +2,7 @@ import { useState } from "react";
 import styles from "@/styles/blog/blogEditor.module.css";
 import toast from "react-hot-toast";
 import ChipInput from "@/components/ui/ChipInput";
-import ImageUploader from "@/components/ui/ImageUploader";
+import ImageManager from "@/components/ui/ImageManager";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -20,7 +20,7 @@ export function BlogSection({ section, index, updateSection, removeImage }) {
                 className={styles.input}
             />
 
-            <ImageUploader
+            <Fil
                 image={section.image}
                 setDataFunction={(url) => updateSection(index, "image", url[0])}
                 removeDataFunction={() => removeImage(index)}
@@ -38,9 +38,9 @@ export function BlogSection({ section, index, updateSection, removeImage }) {
     );
 }
 
-export default function BlogEditor({existingBlog}) {
+export default function BlogEditor({ existingBlog }) {
 
-    
+
     const [blogData, setBlogData] = useState({
         imgUrl: existingBlog?.imgUrl || null,
         title: existingBlog?.title || "",
@@ -50,7 +50,7 @@ export default function BlogEditor({existingBlog}) {
         description: existingBlog?.description || ""
     });
 
-    const {data:session} = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
 
     const handleChange = (field, value) => {
@@ -99,7 +99,7 @@ export default function BlogEditor({existingBlog}) {
         toast.success(res.status);
         if ([200, 201].includes(res.status)) {
             toast.success("Saved Successfully");
-            router.push(session?.user?.id+"/blogs");
+            router.push(session?.user?.id + "/blogs");
         } else {
             toast.error("Failed");
         }
@@ -115,8 +115,8 @@ export default function BlogEditor({existingBlog}) {
                 {existingBlog ? "Edit Blog" : "Create Blog"}
             </h1>
 
-            <ImageUploader
-                image={blogData.imgUrl}
+            <ImageManager
+                images={blogData.imgUrl}
                 setDataFunction={(url) => handleChange("imgUrl", url[0])}
                 removeDataFunction={(idx) => handleChange("imgUrl", "")}
                 fileFolder={"Blogs"}
@@ -182,15 +182,15 @@ export default function BlogEditor({existingBlog}) {
 
 export async function getServerSideProps(context) {
     const { blogid } = context.params;
-     await connectDB()
+    await connectDB()
 
     if (blogid !== "new") {
         try {
-             const blog = await Blog.findById(blogid);
-                            
+            const blog = await Blog.findById(blogid);
+
             if (!blog) return { props: { existingBlog: null } };
 
-            return { props: { existingBlog : JSON.parse(JSON.stringify(blog))} };
+            return { props: { existingBlog: JSON.parse(JSON.stringify(blog)) } };
         } catch (err) {
             console.log(err);
         }
