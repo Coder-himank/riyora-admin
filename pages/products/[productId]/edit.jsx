@@ -293,17 +293,16 @@ const EditProductPage = () => {
   return (
     <div className={styles.container}>
       <section className={styles.header}>
-        <div>
 
-          <div>
-            <h2>{productId === "new" ? "Create New Product" : `Editing Product: ${product.name}`}</h2>
-            <p><strong>Last Modified:</strong> {product.lastModifiedAt ? new Date(product.lastModifiedAt).toLocaleString() : "N/A"}</p>
-          </div>
-          {productId !== "new" && (<div><p>Rating: {product.averageRating}</p><p>Reviews: {product.numReviews}</p></div>)}
+        <div>
+          <h2>{productId === "new" ? "Create New Product" : `Editing Product: ${product.name}`}</h2>
+          <p><strong>Last Modified:</strong> {product.lastModifiedAt ? new Date(product.lastModifiedAt).toLocaleString() : "N/A"}</p>
         </div>
+        {productId !== "new" && (<div><p>Rating: {product.averageRating}</p><p>Reviews: {product.numReviews}</p></div>)}
 
         <div>
-          <Link href={`/products/${productId}/productInfoeditor`}>Edit Info</Link>
+
+          <Link href={`/products/${productId}/productInfoeditor`} className={styles.editInfo_btn}>Edit Info</Link>
         </div>
       </section>
 

@@ -35,7 +35,7 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  margin-left: var(--sidebar-width);
+    margin-left: var(--sidebar-collapsed-width);
   background: var(--color-bg-3);
   transition: margin-left 0.3s ease;
 }

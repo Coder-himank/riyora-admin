@@ -3,6 +3,7 @@ import styles from "@/styles/blog/blogEditor.module.css";
 import toast from "react-hot-toast";
 import ChipInput from "@/components/ui/ChipInput";
 import ImageManager from "@/components/ui/ImageManager";
+import ListEditor from "@/components/ui/Listeditor";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -12,6 +13,17 @@ import Blog from "@/lib/models/blog"
 export function BlogSection({ section, index, updateSection, removeImage }) {
     return (
         <div className={styles.section}>
+            <select
+                value={section.type || "text"}
+                onChange={(e) => updateSection(index, "type", e.target.value)}
+                className={styles.select}
+            >
+                <option value="text">Text</option>
+                <option value="image">Image</option>
+                <option value="list">List</option>
+                <option value="quote">Quote</option>
+            </select>
+
             <input
                 type="text"
                 placeholder="Section Heading"
@@ -20,29 +32,62 @@ export function BlogSection({ section, index, updateSection, removeImage }) {
                 className={styles.input}
             />
 
-            <Fil
-                image={section.image}
-                setDataFunction={(url) => updateSection(index, "image", url[0])}
-                removeDataFunction={() => removeImage(index)}
-                fileFolder={"Blogs"}
-            />
+            {section.type === "text" && (
+                <textarea
+                    placeholder="Section Text"
+                    value={section.content || ""}
+                    onChange={(e) => updateSection(index, "content", e.target.value)}
+                    className={styles.textarea}
+                    rows="4"
+                />
+            )}
 
-            <textarea
-                placeholder="Section Text"
-                value={section.text}
-                onChange={(e) => updateSection(index, "text", e.target.value)}
-                className={styles.textarea}
-                rows="4"
-            />
+            {section.type === "quote" && (
+                <textarea
+                    placeholder="Quote"
+                    value={section.content || ""}
+                    onChange={(e) => updateSection(index, "content", e.target.value)}
+                    className={styles.textarea}
+                    rows="2"
+                />
+            )}
+
+            {section.type === "code" && (
+                <textarea
+                    placeholder="Code snippet"
+                    value={section.content || ""}
+                    onChange={(e) => updateSection(index, "content", e.target.value)}
+                    className={styles.codearea}
+                    rows="6"
+                />
+            )}
+
+            {section.type === "list" && (
+                <ListEditor
+                    values={section.listItems || []}
+                    onChange={(newList) => updateSection(index, "listItems", newList)}
+                />
+            )}
+
+            {section.type === "image" && (
+                <ImageManager
+                    multiple={false}
+                    images={section?.images?.[0]?.url ? [section.images[0].url] : []}
+                    setDataFunction={(url) =>
+                        updateSection(index, "images", [{ url: url[0], alt: section.heading }])
+                    }
+                    removeDataFunction={() => removeImage(index)}
+                    fileFolder={"Blogs"}
+                />
+            )}
         </div>
     );
 }
 
 export default function BlogEditor({ existingBlog }) {
 
-
     const [blogData, setBlogData] = useState({
-        imgUrl: existingBlog?.imgUrl || null,
+        imageUrl: existingBlog?.imageUrl || null,
         title: existingBlog?.title || "",
         author: existingBlog?.author || "",
         sections: existingBlog?.sections || [],
@@ -52,6 +97,7 @@ export default function BlogEditor({ existingBlog }) {
 
     const { data: session } = useSession();
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (field, value) => {
         setBlogData(prev => ({
@@ -63,7 +109,10 @@ export default function BlogEditor({ existingBlog }) {
     const addSection = () => {
         setBlogData(prev => ({
             ...prev,
-            sections: [...prev.sections, { heading: "", image: "", text: "" }]
+            sections: [
+                ...prev.sections,
+                { type: "text", heading: "", content: "", images: [], listItems: [] }
+            ]
         }));
     };
 
@@ -80,34 +129,34 @@ export default function BlogEditor({ existingBlog }) {
         setBlogData(prev => ({
             ...prev,
             sections: prev.sections.map((sec, i) =>
-                i === index ? { ...sec, image: "" } : sec
+                i === index ? { ...sec, images: [] } : sec
             )
         }));
     };
 
     const handleSubmit = async () => {
-        const method = existingBlog ? "PUT" : "POST";
+        setLoading(true);
+        try {
+            let res;
+            if (existingBlog) {
+                res = await axios.put(`/api/blogsApi?blogId=${existingBlog._id}`, blogData)
+            } else {
+                res = await axios.post(`/api/blogsApi`, blogData)
+            }
 
-        let res;
-        if (existingBlog) {
-            res = await axios.put(`/api/blogsApi?blogId=${existingBlog._id}`, blogData)
-        } else {
-            res = await axios.post(`/api/blogsApi`, blogData)
+            if ([200, 201].includes(res.status)) {
+                toast.success("Saved Successfully");
+                router.push("/blogs");
+            } else {
+                toast.error("Failed");
+            }
+        } catch (e) {
+            console.error(e);
+            toast.error("Error Saving the blog")
+        } finally {
+            setLoading(false)
         }
-
-
-        toast.success(res.status);
-        if ([200, 201].includes(res.status)) {
-            toast.success("Saved Successfully");
-            router.push(session?.user?.id + "/blogs");
-        } else {
-            toast.error("Failed");
-        }
-
     };
-
-
-
 
     return (
         <div className={styles.container}>
@@ -116,9 +165,9 @@ export default function BlogEditor({ existingBlog }) {
             </h1>
 
             <ImageManager
-                images={blogData.imgUrl}
-                setDataFunction={(url) => handleChange("imgUrl", url[0])}
-                removeDataFunction={(idx) => handleChange("imgUrl", "")}
+                images={blogData.imageUrl ? [blogData.imageUrl] : []}
+                setDataFunction={(url) => handleChange("imageUrl", url[0])}
+                removeDataFunction={() => handleChange("imageUrl", "")}
                 fileFolder={"Blogs"}
             />
 
@@ -128,6 +177,7 @@ export default function BlogEditor({ existingBlog }) {
                 value={blogData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 className={styles.input}
+                
             />
 
             <ChipInput
@@ -172,9 +222,9 @@ export default function BlogEditor({ existingBlog }) {
             <button
                 onClick={handleSubmit}
                 className={`${styles.button} ${styles.buttonSecondary}`}
-
+                disabled={loading}
             >
-                Save Blog
+                {loading ? "Saving..." : "Save Blog"}
             </button>
         </div>
     );
@@ -197,5 +247,4 @@ export async function getServerSideProps(context) {
     }
 
     return { props: { existingBlog: null } };
-
 }

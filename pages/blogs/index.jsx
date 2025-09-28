@@ -88,9 +88,9 @@ export default function BlogListPage() {
                 <div className={styles.grid}>
                     {blogs.map((blog) => (
                         <div key={blog._id} className={`${blog.visible ? '' : styles.cardnotVissible} ${styles.card}`}>
-                            {blog.sections?.[0]?.image && (
+                            {blog?.imageUrl && (
                                 <img
-                                    src={blog.sections[0].image}
+                                    src={blog.imageUrl}
                                     alt={blog.title}
                                     className={styles.image}
                                 />

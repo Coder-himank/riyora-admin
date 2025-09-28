@@ -11,6 +11,10 @@
   border-bottom: 2px solid var(--color-2);
   margin-bottom: 2rem;
   padding-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .header h2 {
@@ -22,6 +26,17 @@
   font-weight: 300;
   padding-top: 0.5rem;
   opacity: 0.85;
+}
+
+.editInfo_btn{
+  max-width: 100px;
+  padding: 10px 20px;
+  background-color: #005893;
+  color: white;
+  border-radius: 8px;
+  display: block;
+  margin: 10px 0;
+
 }
 
 /* ================= Layout ================= */

@@ -26,10 +26,13 @@ export default async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
-      const { productId, title, description, ingredients, benefits, suitability, imageUrl } =
+      const { productId, title, description, ingredients, benefits, suitability, imageUrl, slug } =
         req.body;
 
-      if (!productId || !title) {
+        console.log(req.body);
+        
+
+      if (!productId || !title || !slug) {
         return res.status(400).json({ error: "productId and title are required" });
       }
 
@@ -47,6 +50,7 @@ export default async function handler(req, res) {
         benefits,
         suitability,
         imageUrl,
+        slug,
       });
 
       return res.status(201).json(newProduct);

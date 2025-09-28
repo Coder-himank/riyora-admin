@@ -4,6 +4,7 @@ import axios from "axios";
 import ChipInput from "@/components/ui/ChipInput";
 import styles from "@/styles/productInfo/editor.module.css";
 import Image from "next/image";
+import ListEditor from "@/components/ui/Listeditor";
 
 const INGREDIENTS = {
   AloeVera: { name: "Aloe Vera", image: "/images/aloe.png", note: "Soothing and hydrating." },
@@ -26,6 +27,7 @@ export default function EditorPage() {
     ingredients: [],
     benefits: { heading: "", list: [] },
     suitability: [],
+    slug: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -49,13 +51,14 @@ export default function EditorPage() {
         setForm({
           _id: productInfo?._id || "",
           productId: productId,
-          title: productInfo?.title || product?.title || "",
+          title: productInfo?.title || product?.name || "",
           description: productInfo?.description || product?.description || "",
           price: productInfo?.price || product?.price || "",
           ingredients: productInfo?.ingredients || [],
           benefits: productInfo?.benefits || { heading: "", list: [] },
           suitability: productInfo?.suitability || [],
-          imageUrl: product?.imageUrl
+          imageUrl: product?.imageUrl,
+          slug: product?.slug || productInfo?.slug || ""
         });
 
         setMainProduct(product || null);
@@ -71,6 +74,8 @@ export default function EditorPage() {
   }, [productId]);
 
   const handleAddIngredient = (ing) => {
+
+    if (form.ingredients.find((obj) => obj.name === ing.name)) return;
     setForm((prev) => ({
       ...prev,
       ingredients: [...prev.ingredients, { name: ing.name, image: ing.image, notes: [ing.note] }],
@@ -80,11 +85,13 @@ export default function EditorPage() {
   const handleSubmit = async () => {
     if (!form.productId) return alert("No product selected");
 
+    // setForm({ ...form, slug: mainProduct.slug, productId: mainProduct._id, title: mainProduct.name })
+
     setLoading(true);
     try {
       console.log(mainProduct);
 
-      const payload = { ...form, imageUrl: mainProduct?.imageUrl };
+      const payload = { ...form, imageUrl: mainProduct?.imageUrl, slug: mainProduct.slug, productId: mainProduct._id, title: mainProduct.name };
       if (form._id) {
         await axios.put(`/api/productInfoApi?id=${form._id}`, payload);
         alert("Product info updated successfully!");
@@ -116,7 +123,7 @@ export default function EditorPage() {
       )}
 
       <label className={styles.label}>Product Title</label>
-      <input className={styles.input} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+      <input className={styles.input} value={mainProduct?.name} disabled={true} />
 
       <label className={styles.label}>Description</label>
       <textarea className={styles.textarea} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
@@ -143,14 +150,21 @@ export default function EditorPage() {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.label}>Benefits</h2>
+
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.label}>Benefits</h2>
+        </div>
+        <label htmlFor="benefitHead">Title</label>
         <input className={styles.input} value={form.benefits.heading} onChange={(e) => setForm({ ...form, benefits: { ...form.benefits, heading: e.target.value } })} />
-        <ChipInput placeholder="Add benefit" values={form.benefits.list} onChange={(list) => setForm({ ...form, benefits: { ...form.benefits, list } })} />
+
+
+        <ListEditor values={form.benefits.list} onChange={(newList) => setForm(prev => ({ ...prev, benefits: { ...prev.benefits, list: newList } }))} />
+
       </div>
 
       <div className={styles.section}>
         <h2 className={styles.label}>Suitable For</h2>
-        <ChipInput placeholder="Add suitability" values={form.suitability} onChange={(list) => setForm({ ...form, suitability: list })} />
+        <ListEditor values={form.suitability} onChange={(list) => setForm({ ...form, suitability: list })} />
       </div>
 
       <button className={styles.saveButton} onClick={handleSubmit} disabled={loading}>

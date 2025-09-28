@@ -17,7 +17,6 @@ const navSections = [
         links: [
             { href: '/orders', label: 'Orders', icon: <ShoppingCart /> },
             { href: '/products', label: 'Products', icon: <Package /> },
-            { href: '/productInfo', label: 'Products Info', icon: <Info /> },
         ],
     },
     {

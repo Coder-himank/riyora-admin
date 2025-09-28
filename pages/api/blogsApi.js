@@ -22,10 +22,14 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
         try {
             const data = req.body;
+            console.log(data);
+            
 
             const blog = await Blog.create(data);
             return res.status(201).json({ message: "Created successfully", blog });
         } catch (err) {
+            console.log(err);
+            
             return res.status(500).json({ error: "Error creating blog", details: err.message });
         }
     }
