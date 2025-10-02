@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "@/styles/Auth.module.css";
 import { signIn, signOut, useSession } from "next-auth/react";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 export default function Authenticate() {
     const { data: session, status } = useSession();
     const [username, setUsername] = useState("");
@@ -22,7 +22,7 @@ export default function Authenticate() {
             setMessage("Invalid credentials");
         } else {
             setMessage("Login successful!");
-            router.push("/")
+            router.reload()
         }
     };
 
@@ -62,7 +62,7 @@ export default function Authenticate() {
                     required
                 />
 
-          
+
 
                 <button type="submit">Login</button>
             </form>

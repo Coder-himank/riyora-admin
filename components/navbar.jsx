@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useSession } from "next-auth/react";
 import { Home, Package, ShoppingCart, FileText, CreditCard, Info } from 'lucide-react'; // icons
 import { FaBars } from 'react-icons/fa';
+import { TbReportMedical } from 'react-icons/tb';
+import { MdReport } from 'react-icons/md';
 const navSections = [
     {
         title: 'Main',
@@ -17,6 +19,7 @@ const navSections = [
         links: [
             { href: '/orders', label: 'Orders', icon: <ShoppingCart /> },
             { href: '/products', label: 'Products', icon: <Package /> },
+            { href: '/complaint', label: 'Comaplaints', icon: <MdReport /> },
         ],
     },
     {
