@@ -33,7 +33,7 @@ const navSections = [
 
 export default function Navbar() {
     const pathname = usePathname();
-    const [collapse, setCollapse] = useState(false);
+    const [collapse, setCollapse] = useState(true);
     const { data: session } = useSession();
 
 

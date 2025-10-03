@@ -11,6 +11,16 @@ import connectDB from "@/lib/database";
 import Blog from "@/lib/models/blog"
 
 export function BlogSection({ section, index, updateSection, removeImage }) {
+
+    const handleTextAreaChange = (e) => {
+        updateSection(index, "content", e.target.value)
+
+        // Reset height first so shrink works too
+        e.target.style.height = "auto";
+        // Set new height based on scrollHeight
+        e.target.style.height = `${e.target.scrollHeight}px`;
+    };
+
     return (
         <div className={styles.section}>
             <select
@@ -36,7 +46,7 @@ export function BlogSection({ section, index, updateSection, removeImage }) {
                 <textarea
                     placeholder="Section Text"
                     value={section.content || ""}
-                    onChange={(e) => updateSection(index, "content", e.target.value)}
+                    onChange={(e) => handleTextAreaChange(e)}
                     className={styles.textarea}
                     rows="4"
                 />
@@ -46,19 +56,9 @@ export function BlogSection({ section, index, updateSection, removeImage }) {
                 <textarea
                     placeholder="Quote"
                     value={section.content || ""}
-                    onChange={(e) => updateSection(index, "content", e.target.value)}
+                    onChange={(e) => handleTextAreaChange(e)}
                     className={styles.textarea}
                     rows="2"
-                />
-            )}
-
-            {section.type === "code" && (
-                <textarea
-                    placeholder="Code snippet"
-                    value={section.content || ""}
-                    onChange={(e) => updateSection(index, "content", e.target.value)}
-                    className={styles.codearea}
-                    rows="6"
                 />
             )}
 
@@ -105,6 +105,17 @@ export default function BlogEditor({ existingBlog }) {
             [field]: value
         }));
     };
+
+    
+  const handleTextAreaChange = (e, field, value) => {
+    handleChange(field, value);
+
+    // Reset height first so shrink works too
+    e.target.style.height = "auto";
+    // Set new height based on scrollHeight
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
 
     const addSection = () => {
         setBlogData(prev => ({
@@ -177,7 +188,7 @@ export default function BlogEditor({ existingBlog }) {
                 value={blogData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 className={styles.input}
-                
+
             />
 
             <ChipInput
@@ -190,7 +201,7 @@ export default function BlogEditor({ existingBlog }) {
                 name="description"
                 placeholder="Description"
                 value={blogData.description}
-                onChange={(e) => handleChange("description", e.target.value)}
+                onChange={(e) => handleTextAreaChange(e, "description", e.target.value)}
                 className={styles.input}
             />
 

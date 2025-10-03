@@ -107,6 +107,17 @@ export default function EditorPage() {
     }
   };
 
+
+  const handleTextAreaChange = (e) => {
+    handleChange(e);
+
+    // Reset height first so shrink works too
+    e.target.style.height = "auto";
+    // Set new height based on scrollHeight
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Admin Product Info Editor</h1>
@@ -126,7 +137,7 @@ export default function EditorPage() {
       <input className={styles.input} value={mainProduct?.name} disabled={true} />
 
       <label className={styles.label}>Description</label>
-      <textarea className={styles.textarea} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+      <textarea className={styles.textarea} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); handleTextAreaChange(e) }} />
 
       <div className={styles.section}>
         <h2 className={styles.label}>Ingredients</h2>

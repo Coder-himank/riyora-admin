@@ -4,6 +4,9 @@ import axios from "axios";
 import ImageUploader from "@/components/ui/ImageUploader"; // your uploader
 import styles from "@/styles/UI/ImageManager.module.css";
 
+
+
+
 const ImageManager = ({
     multiple = true,
     images,
@@ -15,6 +18,8 @@ const ImageManager = ({
     const [selected, setSelected] = useState([]);
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
+
+    const [deletingImageId, setDeletingImageId] = useState(null);
 
     // Fetch images from Cloudinary
     const fetchImages = async () => {
@@ -48,22 +53,28 @@ const ImageManager = ({
 
     // Delete from Cloudinary
     const deleteImage = async (publicId) => {
+
         if (!confirm("Delete this image?")) return;
         try {
-            await axios.delete("/api/cloudinary/delete", { data: { publicId } });
+            setDeletingImageId(publicId);
+            await axios.delete("/api/cloudinary", { data: { publicId } });
             setCloudedImages((prev) => prev.filter((img) => img.public_id !== publicId));
             setSelected((prev) => prev.filter((url) => !url.includes(publicId)));
         } catch (err) {
             console.error("Delete failed", err);
             alert("Failed to delete image.");
         }
+        finally {
+            setDeletingImageId(null);
+        }
     };
 
     // Confirm selection
     const confirmSelection = () => {
-        setDataFunction?.(selected);
+        setDataFunction?.([...new Set(selected)]);
         setOpen(false);
     };
+
 
     return (
         <div>
@@ -111,7 +122,7 @@ const ImageManager = ({
                                     <div
                                         key={img.asset_id}
                                         className={`${styles.card} ${selected.includes(img.secure_url) ? styles.selected : ""
-                                            }`}
+                                            } ${deletingImageId === img.public_id ? styles.deleting : ""}`}
                                     >
                                         <img
                                             src={img.secure_url}

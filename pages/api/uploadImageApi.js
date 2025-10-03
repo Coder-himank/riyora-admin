@@ -1,82 +1,86 @@
 import cloudinary from "cloudinary";
 import formidable from "formidable";
-import sharp from "sharp";
 import fs from "fs";
+// import { scanFile } from "@/utils/virusScan"; // hypothetical virus scanning utility
 
 cloudinary.v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 export const config = {
-    api: {
-        bodyParser: false, // required for Formidable
-    },
+  api: {
+    bodyParser: false, // required for Formidable
+  },
 };
 
 export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
+  const { fileFolder } = req.query;
+  const form = formidable({ multiples: true });
 
-    if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method not allowed" });
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      console.error("Formidable parse error:", err);
+      return res.status(500).json({ error: "Form parsing failed" });
     }
 
-    const { fileFolder } = req.query;
-    const form = formidable({ multiples: true });
+    try {
+      const fileArray = Array.isArray(files.file) ? files.file : [files.file];
+      const urls = [];
 
-    form.parse(req, async (err, fields, files) => {
-        if (err) {
-            console.error("Formidable parse error:", err);
-            return res.status(500).json({ error: "Form parsing failed" });
-        }
-
+      for (const file of fileArray) {
+        // ===== Virus Scan =====
         try {
-            const fileArray = Array.isArray(files.file) ? files.file : [files.file];
-
-            const uploadPromises = fileArray.map(async (file) => {
-                
-                const metadata = await sharp(file.filepath).metadata();
-
-                let pipeline = sharp(file.filepath).resize({ width: 1920 });
-
-                if (metadata.hasAlpha) {
-                    pipeline = pipeline.png({ quality: 80, compressionLevel: 8 });
-                } else {
-                    pipeline = pipeline.jpeg({ quality: 80 });
-                }
-
-                const buffer = await pipeline.toBuffer();
-
-
-                return new Promise((resolve, reject) => {
-                    const stream = cloudinary.v2.uploader.upload_stream(
-                        { folder: fileFolder },
-                        (error, result) => {
-                            if (error) return reject(error);
-                            resolve(result);
-                        }
-                    );
-                    stream.end(buffer); // send buffer to Cloudinary
-                });
-            });
-
-            const results = await Promise.all(uploadPromises);
-
-            // cleanup temp files
-            fileArray.forEach((file) => {
-                try {
-                    fs.unlinkSync(file.filepath);
-                } catch (cleanupErr) {
-                    console.warn(`Failed to delete temp file ${file.filepath}:`, cleanupErr);
-                }
-            });
-
-            const urls = results.map((r) => r.secure_url);
-            res.status(200).json({ urls });
-        } catch (uploadErr) {
-            console.error("Cloudinary upload error:", uploadErr);
-            res.status(500).json({ error: "Upload failed" });
+          const isSafe = true //await scanFile(file.filepath); // returns true/false
+          if (!isSafe) {
+            fs.unlinkSync(file.filepath);
+            return res.status(400).json({ error: "File failed virus scan" });
+          }
+        } catch (scanErr) {
+          console.error("Virus scan failed:", scanErr);
+          fs.unlinkSync(file.filepath);
+          return res.status(500).json({ error: "Virus scan error" });
         }
-    });
+
+        // ===== Determine upload options =====
+        let uploadOptions = { folder: fileFolder };
+
+        // For images, you can optimize
+        const isImage = file.mimetype?.startsWith("image/");
+        if (isImage) {
+          // optional: resize or optimize
+          const sharp = await import("sharp");
+          const buffer = await sharp.default(file.filepath)
+            .resize({ width: 1920 })
+            .toBuffer();
+
+          const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.v2.uploader.upload_stream(uploadOptions, (err, result) => {
+              if (err) return reject(err);
+              resolve(result);
+            });
+            stream.end(buffer);
+          });
+          urls.push(result.secure_url);
+        } else {
+          // For other files (pdf, video, doc)
+          const result = await cloudinary.v2.uploader.upload(file.filepath, uploadOptions);
+          urls.push(result.secure_url);
+        }
+
+        // Cleanup temp file
+        fs.unlinkSync(file.filepath);
+      }
+
+      res.status(200).json({ urls });
+    } catch (uploadErr) {
+      console.error("Upload error:", uploadErr);
+      res.status(500).json({ error: "Upload failed" });
+    }
+  });
 }

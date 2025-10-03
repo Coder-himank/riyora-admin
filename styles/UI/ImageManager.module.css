@@ -124,3 +124,11 @@
 .confirmBtn:hover {
   background: #005bb5;
 }
+.deleting {
+  filter: grayscale(100%) brightness(90%);
+  transition: filter 0.3s ease;
+}
+
+.deleting:hover {
+  filter: grayscale(0%) brightness(100%); /* Optional: return to normal on hover */
+}

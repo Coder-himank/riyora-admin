@@ -51,7 +51,7 @@
 
 /* Drop Zone */
 .MultiDropZone {
-    border: 2px dashed var(--color-2);
+    border: 2px dashed #bbb;
     padding: 1.5rem;
     border-radius: var(--radius);
     text-align: center;

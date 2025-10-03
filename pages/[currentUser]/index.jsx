@@ -1,43 +1,47 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import styles from "@/styles/AdminProfile.module.css";
 import { signOut, useSession } from "next-auth/react";
+import styles from "@/styles/AdminProfile.module.css";
 
 export default function AdminProfile() {
-  const [admin, setAdmin] = useState(null);
-  const [subAdmins, setSubAdmins] = useState([]);
+  const [user, setUser] = useState(null);
+  const [allAdmins, setAllAdmins] = useState([]);
   const [newPassword, setNewPassword] = useState("");
   const router = useRouter();
   const { data: session } = useSession();
 
   useEffect(() => {
-    fetchAdminData();
-  }, []);
+    fetchProfile();
+  }, [session]);
 
-  async function fetchAdminData() {
+  const fetchProfile = async () => {
+    if (!session?.user) return;
     try {
-      const res = await axios.get("/api/AdminusersApi"); // fetching all users
+      const res = await axios.get("/api/AdminusersApi");
       const admins = res.data.filter((u) => u.role === "admin");
 
-      // assuming first one is superadmin
-      setAdmin(admins.find((a) => a.username === "superadmin") || admins[0]);
-      setSubAdmins(admins.filter((a) => a.username !== "superadmin"));
-    } catch (err) {
-      console.error("Failed to fetch admin data", err);
-    }
-  }
+      // current logged-in user
+      const currentUser = admins.find((a) => a._id === session.user._id);
+      setUser(currentUser);
 
-  async function handlePasswordUpdate(e) {
+      // store all admins/sub-admins
+      setAllAdmins(admins);
+    } catch (err) {
+      console.error("Failed to fetch profile", err);
+    }
+  };
+
+  const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     if (!newPassword) return alert("Enter a new password");
 
     try {
       await axios.put("/api/AdminusersApi", {
-        id: admin._id,
-        username: admin.username,
-        role: admin.role,
-        permissions: admin.permissions,
+        id: user._id,
+        username: user.username,
+        role: user.role,
+        permissions: user.permissions,
         password: newPassword,
       });
       alert("Password updated successfully!");
@@ -46,59 +50,66 @@ export default function AdminProfile() {
       console.error("Failed to update password", err);
       alert("Password update failed");
     }
-  }
+  };
+
+  if (!user) return <p>Loading profile...</p>;
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.heading}>Admin Profile</h1>
+      {/* User Profile Section */}
+      <div className={styles.profileCard}>
+        <h1>Welcome, {user.username}</h1>
+        <p><strong>Role:</strong> {user.role}</p>
 
-      {admin ? (
-        <div className={styles.profileCard}>
-          <h2>{admin.username}</h2>
-          <p><strong>Role:</strong> {admin.role}</p>
+        <div className={styles.permissions}>
+          <h3>Your Permissions</h3>
+          {user.permissions && user.permissions.length > 0 ? (
+            <div className={styles.chipContainer}>
+              {user.permissions.map((perm, i) => (
+                <span key={i} className={styles.chip}>
+                  {perm.replaceAll("_", " ")}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p>No permissions assigned</p>
+          )}
+        </div>
 
-          <div className={styles.permissions}>
-            <h3>Permissions</h3>
-            <ul>
-              {admin.permissions && admin.permissions.length > 0 ? (
-                admin.permissions.map((perm, i) => <li key={i}>{perm}</li>)
-              ) : (
-                <li>No permissions assigned</li>
-              )}
-            </ul>
-          </div>
+        {/* Update Password */}
+        <form onSubmit={handlePasswordUpdate} className={styles.passwordForm}>
+          <input
+            type="password"
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+          <button type="submit">Update Password</button>
+        </form>
 
-          <form onSubmit={handlePasswordUpdate} className={styles.passwordForm}>
-            <input
-              type="password"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <button type="submit">Update Password</button>
-          </form>
-
+        {/* Only admin can manage users */}
+        {user.username === "admin" && (
           <button
-            className={styles.redirectBtn}
+            className={styles.manageUsersBtn}
             onClick={() => router.push(`/${session?.user?._id}/addUser`)}
           >
             Manage Users
           </button>
-          <button
-            className={styles.signout}
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
-            Sign Out
-          </button>
-        </div>
-      ) : (
-        <p>Loading admin info...</p>
-      )}
+        )}
 
-      <div className={styles.subAdminSection}>
-        <h2>Sub-Admins</h2>
-        {subAdmins.length === 0 ? (
-          <p>No sub-admins available</p>
+        <button
+          className={styles.signoutBtn}
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
+          Sign Out
+        </button>
+      </div>
+
+      {/* Admins and Sub-Admins */}
+      <div className={styles.adminSection}>
+        <h2>All Admins</h2>
+        {allAdmins.length === 0 ? (
+          <p>No admins available</p>
         ) : (
           <table className={styles.table}>
             <thead>
@@ -109,18 +120,30 @@ export default function AdminProfile() {
               </tr>
             </thead>
             <tbody>
-              {subAdmins.map((sub) => (
-                <tr key={sub._id}>
-                  <td>{sub.username}</td>
-                  <td>{sub.permissions?.join(", ") || "None"}</td>
+              {allAdmins.map((a) => (
+                <tr key={a._id}>
+                  <td>{a.username}</td>
                   <td>
-                    <span
-                      className={`${styles.status} ${
-                        sub.active ? styles.active : styles.inactive
-                      }`}
-                    >
-                      {sub.active ? "Active" : "Inactive"}
-                    </span>
+                    {a.permissions && a.permissions.length > 0 ? (
+                      <div className={styles.chipContainer}>
+                        {a.permissions.map((perm, idx) => (
+                          <span key={idx} className={styles.chip}>
+                            {perm.replaceAll("_", " ")}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      "None"
+                    )}
+                  </td>
+                  <td>
+                    {a._id === user._id ? (
+                      <span className={`${styles.status} ${styles.current}`}>
+                        You
+                      </span>
+                    ) : (
+                      <span className={styles.status}>Sub-Admin</span>
+                    )}
                   </td>
                 </tr>
               ))}
