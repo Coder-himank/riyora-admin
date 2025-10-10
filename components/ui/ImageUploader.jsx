@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 
 const uploadImage = async (e, ftype, setUploading, setDataFunction, fileFolder, setDragOver) => {
 
+
+
     try {
         setUploading(true)
         if (ftype === "Image Drop") {
@@ -22,76 +24,9 @@ const uploadImage = async (e, ftype, setUploading, setDataFunction, fileFolder, 
     }
 }
 
-
-// export const ImageUploader = ({ image, setDataFunction, removeDataFunction, fileFolder }) => {
-
-//     const [dragOver, setDragOver] = useState(false);
-//     const [uploading, setUploading] = useState(false)
-
-//     return (
-//         <>
-//             {/* Drag & Drop Zone */}
-//             <div
-//                 className={`${styles.dropZone} ${dragOver ? styles.dragOver : ""}`}
-//                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-//                 onDragLeave={() => setDragOver(false)}
-//                 onDrop={(e) => uploadImage(e, "Image Drop", setUploading, setDataFunction, fileFolder, setDragOver)}
-//             >
-
-//                 < input
-//                     type="file"
-//                     accept="image/*"
-//                     style={{ display: "none" }
-//                     }
-//                     // id={`fileInput-${idx}`}
-//                     onChange={(e) => uploadImage(e, "File Select", setDataFunction, fileFolder)}
-//                 />
-//                 <label
-//                     // htmlFor={`fileInput-${idx}`}
-//                     className={`${styles.button} ${styles.buttonPrimary}`}
-//                     style={{ marginLeft: "8px", cursor: "pointer" }}
-//                 >
-//                     {uploading ? "Uploading..." : "Drag & drop image here or Choose File"}
-//                 </label>
-
-//                 {uploading && (
-
-//                     <div className={styles.imageWrapper}>
-
-//                         <div
-//                             className={styles.previewImageLoading}
-//                         />
-//                     </div>
-//                 )}
-
-//                 {
-//                     image && (
-//                         <div className={styles.imageWrapper}>
-//                             <img
-//                                 src={image}
-//                                 alt="Preview"
-//                                 className={styles.previewImage}
-//                             />
-//                             <button
-//                                 type="button"
-//                                 className={styles.removeImageBtn}
-//                                 onClick={removeDataFunction}
-//                             >
-//                                 X
-//                             </button>
-//                         </div>
-//                     )
-//                 }
-//             </div >
-//         </>
-
-//     )
-// }
-// export const MultiImageUploader = ({ images, setDataFunction, removeDataFunction, fileFolder }) => {
-export const ImageUploader = ({ images, setDataFunction, removeDataFunction, fileFolder }) => {
+export const ImageUploader = ({ images, setDataFunction, removeDataFunction, fileFolder, uploading, setUploading }) => {
 
     const [dragOver, setDragOver] = useState(false);
-    const [uploading, setUploading] = useState(false)
     return (
         <>
             {/* Drag & Drop Zone */}
@@ -100,7 +35,7 @@ export const ImageUploader = ({ images, setDataFunction, removeDataFunction, fil
             <input
                 type="file"
                 multiple
-                accept="image/*"
+                accept="image/*,video/*"
                 style={{ display: "none" }}
                 id="fileInput"
                 onChange={(e) => uploadImage(e, "File Select", setUploading, setDataFunction, fileFolder, setDragOver)}

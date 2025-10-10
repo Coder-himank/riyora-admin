@@ -13,16 +13,21 @@ const ImageManager = ({
     fileFolder,
     setDataFunction,
     removeDataFunction,
+
 }) => {
     const [cloudedImages, setCloudedImages] = useState([]);
     const [selected, setSelected] = useState([]);
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
 
+    const [uploading, setUploading] = useState(false)
+
     const [deletingImageId, setDeletingImageId] = useState(null);
 
     // Fetch images from Cloudinary
     const fetchImages = async () => {
+        console.log("Fetching images...");
+
         setLoading(true);
         try {
             const res = await axios.get("/api/listImages");
@@ -35,8 +40,8 @@ const ImageManager = ({
     };
 
     useEffect(() => {
-        if (open) fetchImages();
-    }, [open]);
+        fetchImages();
+    }, [uploading, images]);
 
     // Toggle selection
     const toggleSelect = (url) => {
@@ -110,6 +115,8 @@ const ImageManager = ({
                                 setDataFunction={() => fetchImages()}
                                 removeDataFunction={removeDataFunction}
                                 fileFolder={fileFolder}
+                                uploading={uploading}
+                                setUploading={setUploading}
                             />
                         </div>
 
