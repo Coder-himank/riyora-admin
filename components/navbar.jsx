@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from "next-auth/react";
 import { Home, Package, ShoppingCart, FileText, CreditCard, Info } from 'lucide-react'; // icons
 import { FaBars } from 'react-icons/fa';
 import { TbReportMedical } from 'react-icons/tb';
 import { MdReport } from 'react-icons/md';
+import { useRouter } from 'next/router';
 const navSections = [
     {
         title: 'Main',
@@ -37,9 +38,17 @@ export default function Navbar() {
     const { data: session } = useSession();
 
 
+    useEffect(() => {
+        setCollapse(true)
+    }, [pathname])
+
+
 
     return (
-        <aside className={`${collapse ? "sidebar-collapsed" : ""} sidebar`}>
+        <aside className={`${collapse ? "sidebar-collapsed" : ""}   sidebar`}
+            onMouseOver={() => setCollapse(false)}
+            onMouseLeave={() => setCollapse(true)}
+        >
             {/* Logo */}
             <div className="sidebar-logo">
                 <span className='bars' onClick={() => setCollapse(prev => !prev)} >

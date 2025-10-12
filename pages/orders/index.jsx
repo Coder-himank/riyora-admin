@@ -98,7 +98,7 @@ const OrdersPage = () => {
           const link = document.createElement("a");
           link.href = label.labelUrl;
           link.download = `label-${label.orderId}.pdf`;
-        //   link.click();
+          //   link.click();
           updateOrderStatus(label.orderId, { status: "ready to ship" });
         });
         toast.success("Labels downloaded!");
@@ -159,12 +159,12 @@ const OrdersPage = () => {
           <>
             <div className={`${styles.head_row}`}>
               <span>Image</span>
-              <span className={styles.orderId}>Order ID</span>
+              <span className={styles.orderId}>ProductName</span>
               <span>Pincode</span>
               <span>Quantity</span>
               <span>Amount</span>
               <span>Payment</span>
-              <span className={styles.actionBtn}>Action</span>
+              <span className={styles.actionBtnHead}>Action</span>
             </div>
 
             {filteredOrders.map((item) => (
@@ -186,9 +186,23 @@ const OrdersPage = () => {
                   )}
                 </div>
 
-                <span className={styles.orderId}>{item._id}</span>
+                <span className={styles.productsName}>
+                  <ul>
+
+                    {item.products.map((p, idx) => {
+                      return (
+                        <li>
+                          {p.name}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </span>
                 <span>{item.address?.pincode || "-"}</span>
-                <span>{item.quantity}</span>
+                <span>
+                  {item.products.reduce((total, product) => total + product.quantity, 0)}
+                </span>
+
                 <span>₹{item.amount || 0}</span>
                 <span>{item.paymentStatus}</span>
 

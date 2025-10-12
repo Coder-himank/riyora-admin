@@ -82,6 +82,7 @@ a{
   
 }
 
+
 body.sidebar-collapsed {
   margin-left: var(--sidebar-collapsed-width);
 }

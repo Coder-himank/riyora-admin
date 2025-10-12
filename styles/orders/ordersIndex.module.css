@@ -106,9 +106,18 @@
     background: #ffffff9a;
 }
 
-.orderId {
+.productsName {
     width: 200px;
     font-size: 12px;
+}
+.productsName ul{
+    display: flex;
+    flex-direction: column;
+}
+
+.productsName li{
+    max-width: 160px;
+    text-wrap: wrap;
 }
 
 .orderList .head_row span,
@@ -155,6 +164,7 @@
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     margin-left: -12px;
     /* overlap effect */
+    position: absolute;
     transition: transform 0.2s ease;
 }
 
@@ -173,13 +183,18 @@
 
 /* Action buttons */
 
-.actionBtn{
+.actionBtn, .actionBtnHead{
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 5px;
     width: 300px;
+    min-width: fit-content;
+}
+
+.actionBtn{
+    
+    justify-content: flex-end !important;
 }
 
 .actionBigBtn:disabled{
