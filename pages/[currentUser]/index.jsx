@@ -22,13 +22,18 @@ export default function AdminProfile() {
       const admins = res.data.filter((u) => u.role === "admin");
 
       // current logged-in user
-      const currentUser = admins.find((a) => a._id === session.user._id);
+      const currentUser = admins.find((a) => a._id === session.user.id);
       setUser(currentUser);
+      console.log(admins);
 
       // store all admins/sub-admins
       setAllAdmins(admins);
     } catch (err) {
-      console.error("Failed to fetch profile", err);
+      if (err.status === 403) {
+        alert("u cant access this page")
+        router.push("/")
+      }
+      // console.error("Failed to fetch profile", err);
     }
   };
 
