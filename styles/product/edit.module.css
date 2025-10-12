@@ -73,6 +73,9 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 1rem;
+  background-color: #ffffff;
+  padding: 6px;
+  border-radius: 8px;
 }
 
 .inputDiv label {
@@ -83,17 +86,22 @@
 .inputDiv input, .inputDiv textarea, .fieldsInput input, .applyStepBox input, .variantBox input {
   padding: 1rem;
   border: 1px solid transparent;
+  border-bottom: 1px solid #ccc;
   border-radius: var(--radius);
   outline: none;
-  background-color: #fff;
-  border-radius: 8px;
   color: var(--color-1);
   transition: border 0.2s, background 0.2s;
+  background-color: transparent;
+  resize: none;
+  overflow: auto;
+  max-height: 350px;
+
 }
 
 .inputDiv input:focus, .inputDiv textarea:focus, .fieldsInput textarea:focus {
-  border-color: var(--color-accent);
-  background-color: #efefef;
+  border-radius: 8px;
+  border-color: #ccc;
+  background-color: white;
 }
 
 .container textarea {
@@ -349,16 +357,19 @@
 
 
 .checkBoxes{
+  max-width: fit-content;
+  min-width: 100%;
   width: 100%;
   display: flex;
-  justify-content: space-evenly;
   flex-wrap: wrap;
   gap: 10px;
 }
 
 .checkPlate{
+  border-radius: 8px;
+  padding: 10px;
   width: 100%;
-  max-width: 120px;
+  max-width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;

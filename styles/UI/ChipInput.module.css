@@ -3,10 +3,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding: 0.6rem;
+    padding: 0.6rem 0;
     border-radius: var(--radius);
     flex-direction: column;
-    background: var(--color-bg-1);
+    background: transparent;
 }
 
 .chipHolder {
@@ -25,6 +25,8 @@
     padding: 4px 12px;
     border-radius: 16px;
     font-size: 0.85rem;
+    
+    border: 1px solid #ccc;
 }
 
 .chip button {
@@ -47,4 +49,11 @@
     color: var(--color-1);
     flex: 1;
     min-width: 100px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+}
+
+.chipContainer input:focus{
+    background-color: white;
+    border: 1px solid gray;
 }

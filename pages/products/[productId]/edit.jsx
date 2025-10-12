@@ -10,8 +10,67 @@ import ChipInput from "@/components/ui/ChipInput";
 import { setNestedValue, getNestedValue } from "@/lib/utils";
 import Image from "next/image";
 import ImageManager from "@/components/ui/ImageManager";
+import Tabs from "@/components/ui/Tabs";
+import AutoTextarea from "@/components/ui/AutoTextarea";
 // import predefinedValues from "@/lib/models/predefinedValues";
 
+
+const FIELD_GROUPS = {
+  "General Info": [
+    { label: "Brand", name: "brand" },
+    { label: "SKU", name: "sku" },
+    { label: "Name", name: "name" },
+    { label: "Description", name: "description" },
+  ],
+
+  "Pricing & Stock": [
+    { label: "Currency", name: "currency" },
+    { label: "MRP", name: "mrp" },
+    { label: "Selling Price", name: "price" },
+    { label: "Discount %", name: "discountPercentage" },
+    { label: "Stock", name: "stock" },
+  ],
+
+  "Details": [
+    { label: "Ingredients", name: "details.ingredients" },
+    { label: "Key Ingredients", name: "details.keyIngredients" },
+    { label: "Free From", name: "details.freeFrom" },
+    { label: "Hair Type", name: "details.hairType" },
+    { label: "Benefits", name: "details.benefits" },
+    { label: "Item Form", name: "details.itemForm" },
+    { label: "Item Volume", name: "details.itemVolume" },
+  ],
+
+  "Specifications": [
+    { label: "Category", name: "category" },
+    { label: "Brand Name", name: "specifications.brandName" },
+    { label: "Product Name", name: "specifications.productName" },
+    { label: "Country Of Origin", name: "specifications.countryOfOrigin" },
+    { label: "Weight", name: "specifications.weight" },
+    { label: "Pack Of", name: "specifications.packOf" },
+    { label: "Generic Name", name: "specifications.genericName" },
+    { label: "Product Dimensions", name: "specifications.productDimensions" },
+    { label: "Shelf Life", name: "specifications.shelfLife" },
+  ],
+
+  "How To Apply": [{ label: "How To Apply", name: "howToApply" }],
+
+  "Highlights & Features": [
+    { label: "Highlights", name: "highlights" },
+    { label: "Choose Us", name: "chooseUs" },
+    { label: "Suitable For", name: "suitableFor" },
+  ],
+
+  "SEO & Relations": [
+    { label: "Tags", name: "tags" },
+    { label: "Slug (SEO URL)", name: "slug" },
+    { label: "Keywords (SEO)", name: "keywords" },
+    { label: "Disclaimers", name: "disclaimers" },
+    { label: "Related Blogs", name: "relatedBlogs" },
+  ],
+
+  "Variants": [{ label: "Variants", name: "variants" }],
+};
 // ===== Field Definitions =====
 export const arrayMainFields = [
   { label: "Name", name: "name" },
@@ -289,6 +348,37 @@ const EditProductPage = () => {
   if (loading) return <p>Loading...</p>;
   if (!product) return <p>Product not found</p>;
 
+
+  const tabs = Object.entries(FIELD_GROUPS).reduce((acc, [label, fields]) => {
+    acc[label] = (
+      <div className={styles.section}>
+        {fields.map((field, i) => (
+          <FieldRenderer
+            key={`${label}-${i}`}
+            field={field}
+            product={product}
+            setProduct={setProduct}
+            handleChange={handleChange}
+          />
+        ))}
+      </div>
+    );
+    return acc;
+  }, {});
+
+  // Add Images tab separately
+  tabs["Images"] = (
+    <ImageManager
+      images={product.imageUrl || []}
+      setDataFunction={(urls) => setProduct((p) => ({ ...p, imageUrl: [...(p.imageUrl || []), ...urls] }))}
+      removeDataFunction={(idx) =>
+        setProduct((p) => ({ ...p, imageUrl: p.imageUrl.filter((_, i) => i !== idx) }))
+      }
+      fileFolder="Products"
+    />
+  );
+
+
   // ===== Render =====
   return (
     <div className={styles.container}>
@@ -303,71 +393,12 @@ const EditProductPage = () => {
         <div>
 
           <Link href={`/products/${productId}/productInfoeditor`} className={styles.editInfo_btn}>Edit Info</Link>
+          <button className={styles.saveBtn} onClick={handleSubmit}>{productId === "new" ? "Create Product" : "Save Product"}</button> {productId !== "new" && <button className={styles.deleteBtn} onClick={handleDelete}>Delete Product</button>}
         </div>
       </section>
 
       <div className={styles.form_container}>
-        {/* Left Panel */}
-        <div className={styles.form_1}>
-          <section className={styles.section}>
-            <ImageManager
-              images={product.imageUrl || []}
-              setDataFunction={setImage}
-              removeDataFunction={removeImage}
-              fileFolder="Products"
-            />
-          </section>
-
-          {arrayFields.map((sec, i) => (
-            <section key={i} className={styles.section}>
-              {sec.map((field, j) => (
-                <FieldRenderer
-                  key={j}
-                  field={field}
-                  product={product}
-                  setProduct={setProduct}
-                  handleChange={handleChange}
-                  setVariantsImage={setVariantsImage}
-                  removeVariantImage={removeVariantImage}
-                  setApplyImage={setApplyImage}
-                  removeApplyImage={removeApplyImage}
-                  setFieldImage={setFieldImage}
-                  removeFieldImage={removeFieldImage}
-                />
-              ))}
-            </section>
-          ))}
-        </div>
-
-        {/* Right Panel */}
-        <div className={styles.form_2}>
-          <h2>SEO & Pricing</h2>
-          {arrayMainFields.map((field, i) => {
-            const value = getNestedValue(product, field.name);
-            return (
-              <div key={i} className={styles.inputDiv}>
-                <label>{field.label}</label>
-                {isArrayField(product, field.name) ? (
-                  <ChipInput values={value || []} onChange={vals => { setNestedValue(product, field.name, vals); setProduct({ ...product }); }} />
-                ) : field.name === "description" ? (
-                  <textarea name={field.name} value={value || ""} onChange={handleTextAreaChange}></textarea>
-                ) : (
-                  <input
-                    name={field.name}
-                    value={value || ""}
-                    onChange={handleChange}
-                    onBlur={() => {
-                      if (["mrp", "price"].includes(field.name)) calculateDiscount();
-                      if (field.name === "discountPercentage") calculatePriceFromDiscount();
-                    }}
-                  />
-                )}
-              </div>
-            )
-          })}
-          <button className={styles.saveBtn} onClick={handleSubmit}>{productId === "new" ? "Create Product" : "Save Product"}</button>
-          {productId !== "new" && <button className={styles.deleteBtn} onClick={handleDelete}>Delete Product</button>}
-        </div>
+        <Tabs tabs={tabs} />
       </div>
     </div>
   );
@@ -390,9 +421,11 @@ const FieldRenderer = ({ field, product, setProduct, handleChange, setVariantsIm
       <label>{field.label}</label>
       {isArrayField(product, field.name) ? (
         <ChipInput values={value || []} onChange={vals => { setNestedValue(product, field.name, vals); setProduct({ ...product }); }} />
-      ) : (
-        <input name={field.name} value={value || ""} onChange={handleChange} />
-      )}
+      ) : field.name === "description" ?
+        <AutoTextarea name={field.name} value={value || ""} onChange={handleChange} />
+        : (
+          <input name={field.name} value={value || ""} onChange={handleChange} />
+        )}
     </div>
   );
 };
@@ -567,7 +600,7 @@ const ArraySection = ({ product, setProduct, field }) => {
         </div>
 
         {(product.highlights || []).map((item, idx) => (
-          <div key={idx} className={styles.inputBox}>
+          <div key={idx} className={styles.highlightsBox}>
             <div className={styles.boxHeader}>
               <button type="button" onClick={() => removeHighlight(idx)}>Remove</button>
             </div>
@@ -680,4 +713,3 @@ const ArraySection = ({ product, setProduct, field }) => {
 
   return null;
 };
-
