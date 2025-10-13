@@ -1,18 +1,21 @@
 /* Compact preview bar */
 .previewBar {
   display: flex;
-  align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
+  flex-direction: column;
 }
 .previewRow {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 .previewThumb {
-  width: 40px;
-  height: 40px;
+  width: auto;
+  height: 100px;
+  max-width: 100%;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -25,6 +28,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  max-width: 200px;
 }
 .openBtn:hover {
   background: #005bb5;

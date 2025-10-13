@@ -1,7 +1,7 @@
 .container {
     width: 100%;
     max-width: 1400px;
-    margin: 40px auto;
+    /* margin: 40px auto; */
     border-radius: 8px;
 }
 
@@ -9,7 +9,7 @@
     width: 100%;
     margin: auto;
     height: fit-content;
-    padding: 40px 10px;
+    padding: 20px 10px 40px;
     display: flex;
     align-self: center;
     flex-direction: column;
@@ -145,7 +145,9 @@
     border-bottom: none;
     /* remove bottom border on last row */
 }
-
+.orderList .cancelledOrderItem {
+    background-color: rgba(255, 155, 155, 0.549);
+}
 
 /* Image style */
 .imageStack {

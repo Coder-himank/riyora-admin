@@ -21,7 +21,6 @@
 
 .tabButton {
     border-radius: 30px;
-    max-width: fit-content;
   flex: 1;
   padding: 10px 16px;
   cursor: pointer;
@@ -32,6 +31,13 @@
   transition: all 0.2s ease;
   color: black;
   margin-bottom: 20px;
+  width: 200px;
+  display: flex;
+  align-items: center;
+
+  min-width: 120px;
+
+  font-size: clamp(8px, 2vw, 12px);
 }
 
 .tabButton:hover {

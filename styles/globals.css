@@ -34,7 +34,7 @@
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: Poppins, sans-serif;
     margin-left: var(--sidebar-collapsed-width);
   background: var(--color-bg-3);
   transition: margin-left 0.3s ease;
@@ -172,10 +172,38 @@ color: #f3f0f0;
   background-color: var(--color-bg-3);
 }
 
+.mobile_header{
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: white;
+  color: black;
+  box-shadow: 0 3px 20px -18px black;
+
+    display: none;
+  }
+
 /* Responsive */
 @media screen and (max-width: 900px) {
 
+  .mobile_header{
+    display: flex;
+  }
+
   body{
-    margin-left: var(--sidebar-collapsed-width);
+    margin-left: 0;
+    /* margin-left: var(--sidebar-collapsed-width); */
+  }
+
+  .container{
+    padding: 60px 10px;
+  }
+  .sidebar-collapsed{
+    transform: translateX(-100%);
   }
 }

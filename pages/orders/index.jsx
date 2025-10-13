@@ -17,6 +17,7 @@ const OrdersPage = () => {
   const [modalOrder, setModalOrder] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [downloading, setDownloading] = useState(false);
+  const [showCancelOrder, setShowCancelOrder] = useState(false);
 
   const router = useRouter();
 
@@ -39,9 +40,9 @@ const OrdersPage = () => {
   // ✅ Filtering with memo to prevent unnecessary renders
   const filteredOrders = useMemo(() => {
     return activeTab === "all"
-      ? orders
+      ? showCancelOrder ? orders : orders.filter((order) => order.status?.toLowerCase() !== "cancelled")
       : orders.filter((order) => order.status?.toLowerCase() === activeTab);
-  }, [activeTab, orders]);
+  }, [activeTab, orders, showCancelOrder]);
 
   const tabs = ["all", "hold", "pending", "confirmed", "ready to ship", "shipped", "delivered"];
   const getCount = (status) =>
@@ -146,6 +147,14 @@ const OrdersPage = () => {
             ))}
           </div>
         </div>
+
+        <div className={styles.subHeader}>
+
+          {activeTab === "all" && <span onClick={() => setShowCancelOrder(prev => !prev)}>
+            <input type="checkbox" value={showCancelOrder} checked={showCancelOrder} />
+            Show Canceled Order
+          </span>}
+        </div>
       </div>
 
       <div className={styles.orderList}>
@@ -168,7 +177,7 @@ const OrdersPage = () => {
             </div>
 
             {filteredOrders.map((item) => (
-              <motion.div key={item._id} className={styles.orderItem}>
+              <motion.div key={item._id} className={`${styles.orderItem} ${item.status === "cancelled" ? styles.cancelledOrderItem : ""}`}>
                 {/* 🔥 Product Images Stack */}
                 <div className={styles.imageStack}>
                   {item.products?.slice(0, 4).map((p, idx) => (

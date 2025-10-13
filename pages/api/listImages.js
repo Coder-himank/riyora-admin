@@ -8,11 +8,18 @@ cloudinary.config({
 
 export default async function handler(req, res) {
   try {
+    const {folder} = req.query;
+    console.log(folder);
+    const searchExpression = folder
+      ? `folder:${folder}/*`
+      : "resource_type:image OR resource_type:video"; // all images & videos
+
     const { resources } = await cloudinary.search
-      .expression("folder:Products") // Change folder if needed
+      .expression(searchExpression)
       .sort_by("created_at", "desc")
-      .max_results(50)
+      .max_results(100) // adjust if needed
       .execute();
+
 
     res.status(200).json({ resources });
   } catch (err) {

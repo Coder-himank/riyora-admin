@@ -25,12 +25,12 @@ const ImageManager = ({
     const [deletingImageId, setDeletingImageId] = useState(null);
 
     // Fetch images from Cloudinary
-    const fetchImages = async () => {
+    const fetchImages = async (fileFolder) => {
         console.log("Fetching images...");
 
         setLoading(true);
         try {
-            const res = await axios.get("/api/listImages");
+            const res = await axios.get(`/api/listImages?folder=${fileFolder}`);
             setCloudedImages(res.data.resources || []);
         } catch (err) {
             console.error("Failed to load images", err);
@@ -40,8 +40,8 @@ const ImageManager = ({
     };
 
     useEffect(() => {
-        fetchImages();
-    }, [uploading, images]);
+        fetchImages(fileFolder);
+    }, [uploading, images, fileFolder]);
 
     // Toggle selection
     const toggleSelect = (url) => {
@@ -88,12 +88,14 @@ const ImageManager = ({
                 {images.length === 0 ? (
                     <button className={styles.openBtn}>Select Images</button>
                 ) : (
-                    <div className={styles.previewRow}>
-                        {images.map((url) => (
-                            <img key={url} src={url} alt="preview" className={styles.previewThumb} />
-                        ))}
+                    <>
+                        <div className={styles.previewRow}>
+                            {images.map((url) => (
+                                <img key={url} src={url} alt="preview" className={styles.previewThumb} />
+                            ))}
+                        </div>
                         <button className={styles.openBtn}>Manage</button>
-                    </div>
+                    </>
                 )}
             </div>
 

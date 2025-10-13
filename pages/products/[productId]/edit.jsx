@@ -71,76 +71,6 @@ const FIELD_GROUPS = {
 
   "Variants": [{ label: "Variants", name: "variants" }],
 };
-// ===== Field Definitions =====
-export const arrayMainFields = [
-  { label: "Name", name: "name" },
-  { label: "Description", name: "description" },
-  { label: "Slug (SEO URL)", name: "slug" },
-  { label: "SKU", name: "sku" },
-  { label: "MRP", name: "mrp" },
-  { label: "Selling Price", name: "price" },
-  { label: "Discount Percentage", name: "discountPercentage" },
-  { label: "Stock", name: "stock" },
-  { label: "Keywords (SEO)", name: "keywords" },
-  { label: "Brand", name: "brand" },
-  { label: "Currency", name: "currency" },
-  { label: "Brand Name", name: "specifications.brandName" },
-  { label: "Product Name", name: "specifications.productName" },
-  { label: "Country Of Origin", name: "specifications.countryOfOrigin" },
-  { label: "Weight", name: "specifications.weight" },
-  { label: "Pack Of", name: "specifications.packOf" },
-  { label: "Generic Name", name: "specifications.genericName" },
-  { label: "Product Dimension", name: "specifications.productDimensions" },
-  { label: "Shelf Life", name: "specifications.shelfLife" },
-
-];
-
-export const arrayFields = [
-  [
-    { label: "Category", name: "category" },
-    { label: "Tags", name: "tags" },
-  ],
-  [
-    { label: "Ingredients", name: "details.ingredients" },
-    { label: "Key Ingredients", name: "details.keyIngredients" },
-    { label: "Free From", name: "details.freeFrom" },
-    { label: "Hair Type", name: "details.hairType" },
-    { label: "Benefits", name: "details.benefits" },
-    { label: "Item Form", name: "details.itemForm" },
-    { label: "Item Volume", name: "details.itemVolume" },
-  ],
-  [
-    { label: "Disclaimers", name: "disclaimers" },
-    { label: "Related Blogs", name: "relatedBlogs" },
-  ],
-  [
-    { label: "Variants", name: "variants" }, // added for variants
-  ],
-  [
-    { label: "How To Apply", name: "howToApply" },
-  ],
-  [
-    { label: "Highlights", name: "highlights" },
-    { label: "Choose Us", name: "chooseUs" },
-    { label: "Suitable For", name: "suitableFor" },
-  ],
-];
-
-const predefined_values = {
-  chooseUs: [
-    {
-      name: "Natural",
-      imageUrl: "",
-    }
-  ],
-  suitableFor: [
-    {
-      name: "dandruf",
-      imageUrl: "",
-    }
-  ]
-}
-
 // ===== Helper Functions =====
 const isArrayField = (product, fieldName) => Array.isArray(getNestedValue(product, fieldName));
 const normalizeToArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
@@ -152,6 +82,7 @@ const createEmptyVariant = (product) => ({
   price: product.price || 0,
   stock: 0,
   quantity: "",
+  dimensions: "",
   imageUrl: [],
 });
 
@@ -209,6 +140,7 @@ const EditProductPage = () => {
         suitableFor: [],
         disclaimers: [],
         relatedBlogs: [],
+        banners: []
       });
       setLoading(false);
       return;
@@ -247,14 +179,6 @@ const EditProductPage = () => {
     });
   };
 
-  const handleTextAreaChange = (e) => {
-    handleChange(e);
-
-    // Reset height first so shrink works too
-    e.target.style.height = "auto";
-    // Set new height based on scrollHeight
-    e.target.style.height = `${e.target.scrollHeight}px`;
-  };
 
 
   const handleSubmit = async () => {
@@ -275,9 +199,11 @@ const EditProductPage = () => {
   const handleDelete = async () => {
     if (productId === "new") return;
     try {
-      await axios.delete(`/api/productApi?productId=${productId}`);
-      toast.success("Product Deleted");
-      router.push("/admin/products");
+      await axios.put(`/api/productApi?productId=${productId}`, {
+        visible: false
+      });
+      toast.success("Product set to invisble");
+      // router.push("/admin/products");
     } catch (err) {
       toast.error("Delete Failed");
     }
@@ -326,24 +252,7 @@ const EditProductPage = () => {
     setProduct({ ...product, [fieldName]: updated });
   };
 
-  // ===== Auto-calculation =====
-  const calculateDiscount = () => {
-    const mrp = parseFloat(product?.mrp) || 0;
-    const price = parseFloat(product?.price) || 0;
-    if (mrp && price) {
-      const discountPercentage = Math.round(((mrp - price) * 100) / mrp);
-      setProduct((prev) => ({ ...prev, discountPercentage }));
-    }
-  };
 
-  const calculatePriceFromDiscount = () => {
-    const mrp = parseFloat(product?.mrp) || 0;
-    const discount = parseFloat(product?.discountPercentage) || 0;
-    if (mrp && discount >= 0 && discount <= 100) {
-      const price = Math.round(mrp - (mrp * discount) / 100);
-      setProduct((prev) => ({ ...prev, price }));
-    }
-  };
 
   if (loading) return <p>Loading...</p>;
   if (!product) return <p>Product not found</p>;
@@ -359,6 +268,12 @@ const EditProductPage = () => {
             product={product}
             setProduct={setProduct}
             handleChange={handleChange}
+            setVariantsImage={setVariantsImage}
+            removeVariantImage={removeVariantImage}
+            setApplyImage={setApplyImage}
+            removeApplyImage={removeApplyImage}
+            setFieldImage={setFieldImage}
+            removeFieldImage={removeFieldImage}
           />
         ))}
       </div>
@@ -368,14 +283,21 @@ const EditProductPage = () => {
 
   // Add Images tab separately
   tabs["Images"] = (
-    <ImageManager
-      images={product.imageUrl || []}
-      setDataFunction={(urls) => setProduct((p) => ({ ...p, imageUrl: [...(p.imageUrl || []), ...urls] }))}
-      removeDataFunction={(idx) =>
-        setProduct((p) => ({ ...p, imageUrl: p.imageUrl.filter((_, i) => i !== idx) }))
-      }
-      fileFolder="Products"
-    />
+    <>
+      <section className={styles.productImageWrapper}>
+
+        <ImageManager
+          images={product.imageUrl || []}
+          setDataFunction={(urls) => setProduct((p) => ({ ...p, imageUrl: [...(p.imageUrl || []), ...urls] }))}
+          removeDataFunction={(idx) =>
+            setProduct((p) => ({ ...p, imageUrl: p.imageUrl.filter((_, i) => i !== idx) }))
+          }
+          fileFolder="Products"
+        />
+      </section>
+
+      <BannerSection product={product} setProduct={setProduct} />
+    </>
   );
 
 
@@ -412,6 +334,26 @@ export default EditProductPage;
 const FieldRenderer = ({ field, product, setProduct, handleChange, setVariantsImage, removeVariantImage, setApplyImage, removeApplyImage, setFieldImage, removeFieldImage }) => {
   const value = getNestedValue(product, field.name);
 
+  // ===== Auto-calculation =====
+  const calculateDiscount = (e) => {
+    const mrp = parseFloat(product?.mrp) || 0;
+    const price = parseFloat(e?.target?.value) || 0;
+    if (mrp && price) {
+      const discountPercentage = Math.round(((mrp - price) * 100) / mrp);
+      setProduct((prev) => ({ ...prev, discountPercentage }));
+    }
+  };
+
+  const calculatePriceFromDiscount = (e) => {
+
+    const mrp = parseFloat(product?.mrp) || 0;
+    const discount = parseFloat(e?.target?.value) || 0;
+    if (mrp && discount >= 0 && discount <= 100) {
+      const price = Math.round(mrp - (mrp * discount) / 100);
+      setProduct((prev) => ({ ...prev, price }));
+    }
+  };
+
   if (field.name === "variants") return <VariantSection product={product} setProduct={setProduct} setVariantsImage={setVariantsImage} removeVariantImage={removeVariantImage} />;
   if (field.name === "howToApply") return <ApplySection product={product} setProduct={setProduct} setApplyImage={setApplyImage} removeApplyImage={removeApplyImage} />;
   if (["highlights", "chooseUs", "suitableFor"].includes(field.name)) return <ArraySection product={product} setProduct={setProduct} field={field} setFieldImage={setFieldImage} removeFieldImage={removeFieldImage} />;
@@ -424,7 +366,12 @@ const FieldRenderer = ({ field, product, setProduct, handleChange, setVariantsIm
       ) : field.name === "description" ?
         <AutoTextarea name={field.name} value={value || ""} onChange={handleChange} />
         : (
-          <input name={field.name} value={value || ""} onChange={handleChange} />
+          <input name={field.name} value={value || ""} onChange={(e) => {
+            handleChange(e)
+            if (field.name === "discountPercentage") calculatePriceFromDiscount(e);
+            if (field.name === "price") calculateDiscount(e);
+          }
+          } />
         )}
     </div>
   );
@@ -468,7 +415,7 @@ const VariantSection = ({ product, setProduct, setVariantsImage, removeVariantIm
               <label htmlFor={`v${idx}-weight`}>Weight</label>
               <input placeholder="Weight (e.g., 100g)" value={v.weight || ""} onChange={e => { const updated = [...product.variants]; updated[idx].weight = e.target.value; setProduct({ ...product, variants: updated }); }} />
               <label htmlFor={`v${idx}-size`}>Dimension</label>
-              <input placeholder="Dimension (e.g., L x b x h)" value={v.dimension || ""} onChange={e => { const updated = [...product.variants]; updated[idx].dimension = e.target.value; setProduct({ ...product, variants: updated }); }} />
+              <input placeholder="Dimension (e.g., L x b x h)" value={v.dimensions || ""} onChange={e => { const updated = [...product.variants]; updated[idx].dimensions = e.target.value; setProduct({ ...product, variants: updated }); }} />
             </div>
             <div className={styles.boxImageWrapper}>
               <ImageManager
@@ -712,4 +659,92 @@ const ArraySection = ({ product, setProduct, field }) => {
   }
 
   return null;
+};
+
+const POSITIONS = ["top", "mid", "bottom"];
+
+const BannerSection = ({ product, setProduct }) => {
+  const addBanner = () => {
+    setProduct((prev) => ({
+      ...prev,
+      banners: [...(prev.banners || []), { position: "", imageUrl: "" }],
+    }));
+  };
+
+  const removeBanner = (index) => {
+    setProduct((prev) => ({
+      ...prev,
+      banners: prev.banners.filter((_, i) => i !== index),
+    }));
+  };
+
+  const setImageFunction = (urls, index) => {
+    setProduct((prev) => {
+      const updated = [...prev.banners];
+      updated[index] = { ...updated[index], imageUrl: urls[0] };
+      return { ...prev, banners: updated };
+    });
+  };
+
+  const removeImageFunction = (index) => {
+    setProduct((prev) => {
+      const updated = [...prev.banners];
+      updated[index] = { ...updated[index], imageUrl: null };
+      return { ...prev, banners: updated };
+    });
+  };
+
+  const handleChange = (e, index) => {
+    const value = e.target.value;
+    setProduct((prev) => {
+      const updated = [...prev.banners];
+      updated[index] = { ...updated[index], position: value };
+      return { ...prev, banners: updated };
+    });
+  };
+
+  return (
+    <section className={styles.bannerSection}>
+      <div className={styles.bannerSectionHeader}>
+        <h3>Banners</h3>
+      </div>
+
+      {product?.banners?.map((banner, index) => (
+        <div className={styles.bannerBox} key={index}>
+          <select
+            onChange={(e) => handleChange(e, index)}
+            value={banner.position || ""}
+          >
+            <option value="" disabled>
+              Select position
+            </option>
+            {POSITIONS.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => removeBanner(index)}
+            className={styles.removeBannerBtn}
+          >
+            x
+          </button>
+
+          <ImageManager
+            multiple={false}
+            images={banner.imageUrl ? [banner.imageUrl] : []}
+            fileFolder="banners"
+            setDataFunction={(urls) => setImageFunction(urls, index)}
+            removeDataFunction={() => removeImageFunction(index)}
+          />
+        </div>
+      ))}
+
+      <button onClick={addBanner} className={styles.addBannerBtn}>
+        +
+      </button>
+    </section>
+  );
 };
