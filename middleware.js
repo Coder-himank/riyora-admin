@@ -7,6 +7,7 @@ const API_PERMISSIONS = {
   "/api/AdminusersApi": ["manage_users"],
   "/api/ordersApi": ["manage_orders"],
   "/api/blogsApi": ["manage_blogs"],
+  "/api/reviewsApi": ["manage_users"],
 };
 
 // Page permissions (static + dynamic with regex)

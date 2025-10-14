@@ -3,7 +3,7 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useSession } from "next-auth/react";
-import { Home, Package, ShoppingCart, FileText, CreditCard, Info } from 'lucide-react'; // icons
+import { Home, Package, ShoppingCart, FileText, CreditCard, Info, StarIcon } from 'lucide-react'; // icons
 import { FaBars } from 'react-icons/fa';
 import { TbReportMedical } from 'react-icons/tb';
 import { MdReport } from 'react-icons/md';
@@ -21,6 +21,7 @@ const navSections = [
             { href: '/orders', label: 'Orders', icon: <ShoppingCart /> },
             { href: '/products', label: 'Products', icon: <Package /> },
             { href: '/complaint', label: 'Comaplaints', icon: <MdReport /> },
+            { href: '/reviews', label: 'Reviews', icon: <StarIcon /> },
         ],
     },
     {
