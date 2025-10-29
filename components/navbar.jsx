@@ -27,6 +27,7 @@ const navSections = [
     {
         title: 'Content',
         links: [
+            { href: '/predefined', label: 'Predefined Values', icon: <FileText /> },
             { href: '/blogs', label: 'Blogs', icon: <FileText /> },
             { href: '/transactions', label: 'Transactions', icon: <CreditCard /> },
         ],

@@ -589,26 +589,40 @@ const ArraySection = ({ product, setProduct, field }) => {
         { imageUrl: "/images/choose_us_icon_6.png", text: "Gluten Free" },
         { imageUrl: "/images/choose_us_icon_8.png", text: "Dermatology tested" },
         { imageUrl: "/images/choose_us_icon_9.png", text: "Chemical Free" },
-        { imageUrl: "/images/choose_us_icon_10.png", text: "Mineral Free" },
+        { imageUrl: "/images/choose_us_icon_10.png", text: "Mineral Oil Free" },
       ],
       suitableFor: [
-        { text: "Promotes Hair Growth", imageUrl: "/images/suitable_1.png" },
-        { text: "Dandruff", imageUrl: "/images/suitable_2.png" },
-        { text: "Reduces Hair Breakage", imageUrl: "/images/suitable_3.png" },
-        { text: "Reduces Hair Thinig", imageUrl: "/images/suitable_4.png" },
-        { text: "Nourish Scalp", imageUrl: "/images/suitable_5.png" },
-        { text: "Reduces Frizz", imageUrl: "/images/suitable_6.png" },
+        { text: "Hair Loss", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761131608/Products/eiplqzsyl9ga2aq9pwkq.png" },
+        { text: "Dandruff", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761247534/Products/w7e0fqo4g7gt4u7s84pw.png" },
+        { text: "Hair Breakage", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761131603/Products/oq2cdrqt5qkrxqtvuxdw.png" },
+        { text: "Hair Thining", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761131600/Products/qeevbtkc87abkyf45xqm.png" },
+        { text: "Dry Scalp", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761247528/Products/hc0tb8kf4kcmndcszt0j.png" },
+        { text: "Frizzy Hairs", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761247522/Products/a6ux4jkowltxhrxvlnec.png" },
       ],
     };
 
     const options = predefined[field.name];
-    const selected = product[field.name] || [];
+    let selected = product[field.name] || [];
+    const isValidSelection = () => {
+      const validSelections = selected.filter((v) => {
+        const exists = options.find((opt) =>
+          typeof v === "string" ? opt.text.toLowerCase() === v.toLowerCase() : opt.text.toLowerCase() === v.text.toLowerCase()
+        );
+        return exists;
+      });
+
+      return validSelections;
+    }
+
+    selected = isValidSelection();
 
     // Normalize: string ya object dono accept
     const isSelected = (itemText) =>
       selected.some((v) =>
         typeof v === "string" ? v.toLowerCase() === itemText?.toLowerCase() : v.text?.toLowerCase() === itemText?.toLowerCase()
       );
+
+
 
     const handleCheckboxChange = (item) => {
       const exists = isSelected(item.text);

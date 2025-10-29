@@ -129,3 +129,56 @@
   background: #ccc;
   cursor: not-allowed;
 }
+
+.section {
+  margin-top: 2rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.ingredientButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ingredientButton {
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 0.75rem;
+  width: 140px;
+  background: #fafafa;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.ingredientButton:hover {
+  border-color: #0070f3;
+  transform: translateY(-2px);
+}
+
+.selectedIngredient {
+  border-color: #0070f3;
+  background: #e7f1ff;
+}
+
+.ingImage {
+  border-radius: 8px;
+}
+
+.ingText {
+  margin-top: 0.5rem;
+}
+
+.selectedList {
+  margin-top: 1rem;
+}
+
+.selectedItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.4rem 0;
+}

@@ -1,37 +1,42 @@
 .editorContainer {
   border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 8px;
-  background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
   margin-bottom: 10px;
 }
 
 .toolbar button {
-  background: #f3f3f3;
-  border: none;
+  background: #f8f9fa;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
   border-radius: 6px;
-  padding: 5px 8px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
+  transition: 0.2s;
 }
 
 .toolbar button:hover {
-  background: #e0e0e0;
+  background: #e9ecef;
 }
 
 .editorContent {
-  min-height: 300px;
-  padding: 12px;
-  outline: none;
-  font-family: system-ui, sans-serif;
-  font-size: 16px;
+  min-height: 400px;
+  padding: 10px;
   line-height: 1.6;
+  outline: none;
+}
+
+.editorContent img {
+  display: block;
+  margin: 10px auto;
+  max-width: 100%;
+  border-radius: 6px;
 }

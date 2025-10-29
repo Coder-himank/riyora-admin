@@ -80,7 +80,7 @@ const CourierModal = ({
                         </div>
                     ))}
 
-                <button className={styles.confirm} disabled={selectedCourirePartner ? false : true} onClick={() => onConfirm(selectedCourirePartner)}>Confirm</button>
+                <button className={styles.confirm} disabled={selectedCourirePartner ? false : true} onClick={() => onConfirm(selectedCourirePartner)}>Place Order</button>
             </div>
         </div>
     );

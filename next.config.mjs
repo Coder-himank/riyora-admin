@@ -3,7 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ['res.cloudinary.com']
+    domains: ['res.cloudinary.com'],
+    remotePatterns: [
+     {
+       protocol: "https",
+       hostname: "res.cloudinary.com",
+     },
+   ],
   },
   env: {
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,

@@ -42,7 +42,7 @@ export const ListEditor = ({ values, onChange }) => {
                 onClick={handleAddValue}
                 className={styles.addBtn}
             >
-                + Add
+                + Add List Item
             </button>
         </div>
     );

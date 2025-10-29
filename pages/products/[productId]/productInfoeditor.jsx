@@ -1,39 +1,146 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import ChipInput from "@/components/ui/ChipInput";
-import styles from "@/styles/productInfo/editor.module.css";
 import Image from "next/image";
 import ListEditor from "@/components/ui/Listeditor";
+import styles from "@/styles/productInfo/editor.module.css";
 
-const INGREDIENTS = {
-  AloeVera: { name: "Aloe Vera", image: "/images/aloe.png", note: "Soothing and hydrating." },
-  Turmeric: { name: "Turmeric", image: "/images/turmeric.png", note: "Anti-inflammatory." },
-  Honey: { name: "Honey", image: "/images/honey.png", note: "Moisturizing & antibacterial." },
-  Neem: { name: "Neem", image: "/images/neem.png", note: "Purifying & antifungal." },
-  Lavender: { name: "Lavender", image: "/images/lavender.png", note: "Calming aroma." },
-};
+/* ===============================
+   SECTION COMPONENTS
+   =============================== */
+
+// 🔹 Ingredients Section
+function IngredientsSection({ preDefinedIngredients, form, setForm, styles }) {
+  const handleAddIngredient = (ing) => {
+    if (form.ingredients.find((obj) => obj.name === ing.name)) return;
+    setForm((prev) => ({
+      ...prev,
+      ingredients: [
+        ...prev.ingredients,
+        { name: ing.name, imageUrl: ing.imageUrl, notes: [ing.note || ""] },
+      ],
+    }));
+  };
+
+  return (
+    <div className={styles.section}>
+      <h2 className={styles.label}>Ingredients</h2>
+      <div className={styles.ingredientButtons}>
+        {preDefinedIngredients.map((ing) => {
+          const isSelected = form.ingredients.some((i) => i.name === ing.name);
+          return (
+            <button
+              key={ing.name}
+              type="button"
+              className={`${styles.ingredientButton} ${isSelected ? styles.selectedIngredient : ""
+                }`}
+              onClick={() => handleAddIngredient(ing)}
+            >
+              <Image
+                src={ing.imageUrl}
+                alt={ing.name}
+                width={80}
+                height={80}
+                className={styles.ingImage}
+              />
+              <div className={styles.ingText}>
+                <strong>{ing.name}</strong>
+                <small>{ing.note}</small>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {form.ingredients.length > 0 && (
+        <div className={styles.selectedList}>
+          <h4>Selected Ingredients:</h4>
+          <ul>
+            {form.ingredients.map((ing, i) => (
+              <li key={i} className={styles.selectedItem}>
+                <Image
+                  src={ing.imageUrl}
+                  alt={ing.name}
+                  width={40}
+                  height={40}
+                />
+                <span>{ing.name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 🔹 Benefits Section
+function BenefitsSection({ form, setForm, styles }) {
+  return (
+    <div className={styles.section}>
+      <h2 className={styles.label}>Benefits</h2>
+      <input
+        className={styles.input}
+        placeholder="Heading"
+        value={form.benefits.heading}
+        onChange={(e) =>
+          setForm({
+            ...form,
+            benefits: { ...form.benefits, heading: e.target.value },
+          })
+        }
+      />
+      <ListEditor
+        values={form.benefits.list}
+        onChange={(newList) =>
+          setForm((prev) => ({
+            ...prev,
+            benefits: { ...prev.benefits, list: newList },
+          }))
+        }
+      />
+    </div>
+  );
+}
+
+// 🔹 Suitability Section
+function SuitabilitySection({ form, setForm, styles }) {
+  return (
+    <div className={styles.section}>
+      <h2 className={styles.label}>Suitable For</h2>
+      <ListEditor
+        values={form.suitability}
+        onChange={(list) => setForm({ ...form, suitability: list })}
+      />
+    </div>
+  );
+}
+
+/* ===============================
+   MAIN EDITOR PAGE
+   =============================== */
 
 export default function EditorPage() {
   const router = useRouter();
   const { productId } = router.query;
 
+  const [preDefinedIngredients, setPredefinedIngredients] = useState([]);
+  const [mainProduct, setMainProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
-    _id: "", // ProductInfo._id
-    productId: productId || "", // reference Product._id
+    _id: "",
+    productId: "",
     title: "",
     description: "",
     price: "",
     ingredients: [],
     benefits: { heading: "", list: [] },
     suitability: [],
-    slug: ""
+    slug: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [mainProduct, setMainProduct] = useState(null);
-
-  // Fetch ProductInfo or fallback to Product
+  // 🔹 Fetch product info and product
   useEffect(() => {
     if (!productId) return;
 
@@ -50,7 +157,7 @@ export default function EditorPage() {
 
         setForm({
           _id: productInfo?._id || "",
-          productId: productId,
+          productId,
           title: productInfo?.title || product?.name || "",
           description: productInfo?.description || product?.description || "",
           price: productInfo?.price || product?.price || "",
@@ -58,13 +165,13 @@ export default function EditorPage() {
           benefits: productInfo?.benefits || { heading: "", list: [] },
           suitability: productInfo?.suitability || [],
           imageUrl: product?.imageUrl,
-          slug: product?.slug || productInfo?.slug || ""
+          slug: product?.slug || productInfo?.slug || "",
         });
 
         setMainProduct(product || null);
       } catch (err) {
         console.error(err);
-        alert("Failed to fetch data.");
+        alert("Failed to fetch product data.");
       } finally {
         setLoading(false);
       }
@@ -73,58 +180,59 @@ export default function EditorPage() {
     fetchData();
   }, [productId]);
 
-  const handleAddIngredient = (ing) => {
+  // 🔹 Fetch predefined ingredients
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const res = await axios.get("/api/predefinedDataApi?type=ingredients");
+        const pdi = res.data?.data?.data || [];
+        setPredefinedIngredients(pdi);
+      } catch (e) {
+        console.error("Failed to load predefined ingredients.");
+      }
+    };
+    fetchIngredients();
+  }, []);
 
-    if (form.ingredients.find((obj) => obj.name === ing.name)) return;
-    setForm((prev) => ({
-      ...prev,
-      ingredients: [...prev.ingredients, { name: ing.name, image: ing.image, notes: [ing.note] }],
-    }));
-  };
-
+  // 🔹 Submit Product Info
   const handleSubmit = async () => {
     if (!form.productId) return alert("No product selected");
-
-    // setForm({ ...form, slug: mainProduct.slug, productId: mainProduct._id, title: mainProduct.name })
-
     setLoading(true);
     try {
-      console.log(mainProduct);
+      const payload = {
+        ...form,
+        imageUrl: mainProduct?.imageUrl,
+        slug: mainProduct?.slug,
+        productId: mainProduct?._id,
+        title: mainProduct?.name,
+      };
 
-      const payload = { ...form, imageUrl: mainProduct?.imageUrl, slug: mainProduct.slug, productId: mainProduct._id, title: mainProduct.name };
       if (form._id) {
         await axios.put(`/api/productInfoApi?id=${form._id}`, payload);
-        alert("Product info updated successfully!");
+        alert("✅ Product info updated!");
       } else {
         await axios.post("/api/productInfoApi", payload);
-        alert("Product info created successfully!");
+        alert("✅ Product info created!");
       }
     } catch (err) {
       console.error(err);
-      alert("Error saving product info");
+      alert("❌ Error saving product info");
     } finally {
       setLoading(false);
     }
   };
 
-
-  const handleTextAreaChange = (e) => {
-    handleChange(e);
-
-    // Reset height first so shrink works too
-    e.target.style.height = "auto";
-    // Set new height based on scrollHeight
-    e.target.style.height = `${e.target.scrollHeight}px`;
-  };
-
-
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Admin Product Info Editor</h1>
+      <h1 className={styles.title}>🧩 Admin Product Info Editor</h1>
 
       {mainProduct && (
         <div className={styles.selectedProduct}>
-          <img src={mainProduct.imageUrl?.[0] || "/images/placeholder.png"} alt={mainProduct.title} className={styles.selectedImage} />
+          <img
+            src={mainProduct.imageUrl?.[0] || "/images/placeholder.png"}
+            alt={mainProduct.title}
+            className={styles.selectedImage}
+          />
           <div>
             <h3>{mainProduct.title}</h3>
             <p>Product ID: {mainProduct._id}</p>
@@ -133,52 +241,28 @@ export default function EditorPage() {
         </div>
       )}
 
-      <label className={styles.label}>Product Title</label>
-      <input className={styles.input} value={mainProduct?.name} disabled={true} />
-
       <label className={styles.label}>Description</label>
-      <textarea className={styles.textarea} value={form.description} onChange={(e) => { setForm({ ...form, description: e.target.value }); handleTextAreaChange(e) }} />
+      <textarea
+        className={styles.textarea}
+        value={form.description}
+        onChange={(e) => setForm({ ...form, description: e.target.value })}
+      />
 
-      <div className={styles.section}>
-        <h2 className={styles.label}>Ingredients</h2>
-        <div className={styles.ingredientButtons}>
-          {Object.values(INGREDIENTS).map((ing) => (
-            <button key={ing.name} type="button" className={styles.ingredientButton} onClick={() => handleAddIngredient(ing)}>
-              <Image src={ing.image} alt={ing.name} width={100} height={100} />
-              <div>{ing.name}</div>
-              <small>{ing.note}</small>
-            </button>
-          ))}
-        </div>
-        <ul className={styles.selectedIngredients}>
-          {form.ingredients.map((ing, idx) => (
-            <li key={idx} className={styles.ingredientItem}>
-              <img src={ing.image} alt={ing.name} />
-              <span>{ing.name}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <IngredientsSection
+        preDefinedIngredients={preDefinedIngredients}
+        form={form}
+        setForm={setForm}
+        styles={styles}
+      />
 
-      <div className={styles.section}>
+      <BenefitsSection form={form} setForm={setForm} styles={styles} />
+      <SuitabilitySection form={form} setForm={setForm} styles={styles} />
 
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.label}>Benefits</h2>
-        </div>
-        <label htmlFor="benefitHead">Title</label>
-        <input className={styles.input} value={form.benefits.heading} onChange={(e) => setForm({ ...form, benefits: { ...form.benefits, heading: e.target.value } })} />
-
-
-        <ListEditor values={form.benefits.list} onChange={(newList) => setForm(prev => ({ ...prev, benefits: { ...prev.benefits, list: newList } }))} />
-
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.label}>Suitable For</h2>
-        <ListEditor values={form.suitability} onChange={(list) => setForm({ ...form, suitability: list })} />
-      </div>
-
-      <button className={styles.saveButton} onClick={handleSubmit} disabled={loading}>
+      <button
+        className={styles.saveButton}
+        onClick={handleSubmit}
+        disabled={loading}
+      >
         {loading ? "Saving..." : form._id ? "Update Product Info" : "Create Product Info"}
       </button>
     </div>

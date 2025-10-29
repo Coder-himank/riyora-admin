@@ -1,47 +1,54 @@
+import { getShiprocketToken } from "@/lib/shiprocket/auth";
 
 export default async function handler(req, res) {
-    if (req.method !== "POST") {
-        return res.status(405).json({ message: "Method not allowed" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+
+  try {
+    // 🟢 Extract details from request body
+    const { pincode, weight =0.2, length = 10, breadth = 10, height = 10, cod = false } = req.body;
+
+    if (!pincode || !weight) {
+      return res.status(400).json({ message: "Missing required fields: pincode or weight" });
     }
 
-    try {
-        // 🟢 Extract details from request body
-        const { pincode, weight, amount } = req.body;
+    // 1️⃣ Get Shiprocket token
+    const token = await getShiprocketToken();
 
-        if (!pincode || !weight) {
-            return res.status(400).json({ message: "Missing required fields" });
-        }
+        const url = `https://apiv2.shiprocket.in/v1/external/courier/serviceability?pickup_postcode=${process.env.SHIPROCKET_PICKUP_PINCODE}&delivery_postcode=${pincode}&weight=${weight}&length=${length}&breadth=${breadth}&height=${height}&cod=${Number(cod)}`;
 
-        // 🟡 Mock courier partner data (replace with real API calls)
-        const courierPartners = [
-            {
-                name: "Delhivery",
-                price: 60 + weight * 5,
-                estDelivery: "3-5 days",
-            },
-            {
-                name: "Bluedart",
-                price: 80 + weight * 6,
-                estDelivery: "2-4 days",
-            },
-            {
-                name: "XpressBees",
-                price: 50 + weight * 4,
-                estDelivery: "4-6 days",
-            },
-            {
-                name: "Ecom Express",
-                price: 70 + weight * 5,
-                estDelivery: "3-5 days",
-            },
-        ];
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-        return res.status(200).json({
-            message: "Courier options fetched successfully",
-            options: courierPartners,
-        });
-    } catch (error) {
-        console.error("Error fetching courier rates:", error);
-        res.status(500).json({ message: "Internal server error" });
+
+    // 2️⃣ Call Shiprocket serviceability API
+
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Shiprocket API error:", data);
+      return res.status(500).json({ message: "Failed to fetch courier rates", details: data });
     }
+
+    // 3️⃣ Map response to a friendly format
+
+    console.log(JSON.stringify(data, null, 2));
+    const courierOptions = data.data.available_courier_companies.map((service) => ({
+      name: service.courier_name,
+      price: service.rate,
+      estDelivery: `${service.estimated_delivery_days} days`,
+      serviceType: service.service_type,
+    }));
+
+    return res.status(200).json({
+      message: "Courier options fetched successfully",
+      options: courierOptions,
+    });
+  } catch (error) {
+    console.error("Error fetching courier rates:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }

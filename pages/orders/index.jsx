@@ -67,7 +67,7 @@ const OrdersPage = () => {
     }
   };
 
-  const handleConfirmPartner = async (cname, orderId) => {
+  const handlePlaceOrder = async (cname, orderId) => {
     try {
       await updateOrder({
         orderId,
@@ -75,6 +75,7 @@ const OrdersPage = () => {
       });
 
       updateOrderStatus(orderId, {
+        statu: "ready to ship",
         courier: { courier_name: cname }
       });
 
@@ -84,35 +85,56 @@ const OrdersPage = () => {
       toast.error("Failed to assign courier");
     }
   };
-
   const downloadLabel = async (orderId = null) => {
     if (downloading) return;
     setDownloading(true);
+
     try {
-      const data = await fetchLabel({
-        orderIds: orderId ? [orderId] : selectedOrders
+      const orderIds = orderId ? [orderId] : selectedOrders;
+
+      if (!orderIds.length) {
+        toast.error("No orders selected");
+        return;
+      }
+
+      // Call your API endpoint for each order
+      const responses = await Promise.all(
+        orderIds.map(async (id) => {
+          const res = await fetch("/api/shiprocket/label", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: id })
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Failed to fetch label");
+          return { orderId: id, labelUrl: data.labelUrl };
+        })
+      );
+
+      // ✅ Download each label
+      responses.forEach(({ orderId, labelUrl }) => {
+        if (labelUrl) {
+          const link = document.createElement("a");
+          link.href = labelUrl;
+          link.download = `label-${orderId}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          updateOrderStatus(orderId, { status: "ready to ship" });
+        }
       });
 
-
-      if (data?.labels?.length) {
-        data.labels.forEach((label) => {
-          const link = document.createElement("a");
-          link.href = label.labelUrl;
-          link.download = `label-${label.orderId}.pdf`;
-          //   link.click();
-          updateOrderStatus(label.orderId, { status: "ready to ship" });
-        });
-        toast.success("Labels downloaded!");
-      } else {
-        toast.error("No labels found");
-      }
+      toast.success("Labels downloaded successfully!");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch labels");
+      console.error("Label download error:", err);
+      toast.error(err.message || "Failed to download labels");
     } finally {
       setDownloading(false);
     }
   };
+
 
   const cancelOrder = async (orderId) => {
     try {
@@ -267,7 +289,7 @@ const OrdersPage = () => {
                 show={!!modalOrder}
                 order={modalOrder}
                 onClose={() => setModalOrder(null)}
-                onConfirm={(cname) => handleConfirmPartner(cname, modalOrder._id)}
+                onConfirm={(cname) => handlePlaceOrder(cname, modalOrder._id)}
               />
             )}
           </>
