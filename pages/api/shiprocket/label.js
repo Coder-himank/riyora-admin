@@ -1,12 +1,12 @@
 // app/api/shiprocket/label/route.js
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
-import Order from "@/models/Order";
+import connectDB from "@/lib/database";
+import Order from "@/lib/models/order";
 import { getShiprocketToken } from "@/lib/shiprocket/auth";
 
 export async function POST(req) {
   try {
-    await dbConnect();
+    await connectDB();
 
     const { orderId } = await req.json();
     if (!orderId) {
