@@ -64,6 +64,7 @@ h1, h2, h3 {
   overflow: hidden;
   transition: width 0.3s ease;
   z-index: 10;
+  overflow: auto;
 }
 a{
   color: var(--color-primary);
