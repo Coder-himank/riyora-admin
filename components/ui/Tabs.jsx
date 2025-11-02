@@ -3,11 +3,11 @@ import { useState } from "react";
 import styles from "@/styles/UI/tabs.module.css";
 
 export default function Tabs({ id = "tabs", tabs }) {
-    console.log(tabs);
+    // console.log(tabs);
 
     const tabNames = Object.keys(tabs);
     const [activeTab, setActiveTab] = useState(tabNames[0]);
-    console.log(tabs[activeTab]);
+    // console.log(tabs[activeTab]);
 
     return (
         <div className={styles.tabsContainer} id={id}>

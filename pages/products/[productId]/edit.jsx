@@ -111,6 +111,8 @@ const EditProductPage = () => {
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [predefinedValues, setPredefinedValues] = useState({ chooseUs: [], suitableFor: [] });
+
 
   // ===== Fetch or Initialize Product =====
   useEffect(() => {
@@ -168,6 +170,21 @@ const EditProductPage = () => {
 
     fetchProduct();
   }, [productId]);
+
+  useEffect(() => {
+    const fetchPredefined = async () => {
+      try {
+        const chooseUs = await axios.get("/api/predefinedDataApi?type=chooseUs");
+        console.log(chooseUs.data);
+        const suitableFor = await axios.get("/api/predefinedDataApi?type=suitableFor");
+        console.log(suitableFor.data);
+        setPredefinedValues({ suitableFor: suitableFor.data?.data?.data || [], chooseUs: chooseUs.data?.data?.data || [] });
+      } catch (e) {
+        console.log("Predefined fetch error", e);
+      }
+    };
+    fetchPredefined();
+  }, []);
 
   // ===== Handlers =====
   const handleChange = (e) => {
@@ -274,6 +291,7 @@ const EditProductPage = () => {
             removeApplyImage={removeApplyImage}
             setFieldImage={setFieldImage}
             removeFieldImage={removeFieldImage}
+            predefinedValues={predefinedValues}
           />
         ))}
       </div>
@@ -331,7 +349,7 @@ export default EditProductPage;
 // ===== Modular Components =====
 
 // Render any field based on type
-const FieldRenderer = ({ field, product, setProduct, handleChange, setVariantsImage, removeVariantImage, setApplyImage, removeApplyImage, setFieldImage, removeFieldImage }) => {
+const FieldRenderer = ({ field, product, setProduct, handleChange, setVariantsImage, removeVariantImage, setApplyImage, removeApplyImage, setFieldImage, removeFieldImage, predefinedValues }) => {
   const value = getNestedValue(product, field.name);
 
   // ===== Auto-calculation =====
@@ -356,7 +374,7 @@ const FieldRenderer = ({ field, product, setProduct, handleChange, setVariantsIm
 
   if (field.name === "variants") return <VariantSection product={product} setProduct={setProduct} setVariantsImage={setVariantsImage} removeVariantImage={removeVariantImage} />;
   if (field.name === "howToApply") return <ApplySection product={product} setProduct={setProduct} setApplyImage={setApplyImage} removeApplyImage={removeApplyImage} />;
-  if (["highlights", "chooseUs", "suitableFor"].includes(field.name)) return <ArraySection product={product} setProduct={setProduct} field={field} setFieldImage={setFieldImage} removeFieldImage={removeFieldImage} />;
+  if (["highlights", "chooseUs", "suitableFor"].includes(field.name)) return <ArraySection product={product} setProduct={setProduct} field={field} setFieldImage={setFieldImage} removeFieldImage={removeFieldImage} predefinedValues={predefinedValues} />;
 
   return (
     <div className={styles.inputDiv}>
@@ -522,7 +540,7 @@ export function ApplySection({ product, setProduct }) {
     </div>
   );
 }
-const ArraySection = ({ product, setProduct, field }) => {
+const ArraySection = ({ product, setProduct, field, predefinedValues }) => {
   // ===== Highlights Section (unchanged) =====
   if (field.name === "highlights") {
     const addHighlight = () => {
@@ -578,35 +596,16 @@ const ArraySection = ({ product, setProduct, field }) => {
 
 
   if (["chooseUs", "suitableFor"].includes(field.name)) {
-    const predefined = {
-      chooseUs: [
-        { imageUrl: "/images/choose_us_icon_1.png", text: "Cruelty Free" },
-        { imageUrl: "/images/choose_us_icon_2.png", text: "Eco Friendly" },
-        { imageUrl: "/images/choose_us_icon_3.png", text: "Non Sticky" },
-        { imageUrl: "/images/choose_us_icon_4.png", text: "Vegan" },
-        { imageUrl: "/images/choose_us_icon_5.png", text: "No Artificial Color" },
-        { imageUrl: "/images/choose_us_icon_7.png", text: "With Plant Extract" },
-        { imageUrl: "/images/choose_us_icon_6.png", text: "Gluten Free" },
-        { imageUrl: "/images/choose_us_icon_8.png", text: "Dermatology tested" },
-        { imageUrl: "/images/choose_us_icon_9.png", text: "Chemical Free" },
-        { imageUrl: "/images/choose_us_icon_10.png", text: "Mineral Oil Free" },
-      ],
-      suitableFor: [
-        { text: "Hair Loss", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761131608/Products/eiplqzsyl9ga2aq9pwkq.png" },
-        { text: "Dandruff", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761247534/Products/w7e0fqo4g7gt4u7s84pw.png" },
-        { text: "Hair Breakage", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761131603/Products/oq2cdrqt5qkrxqtvuxdw.png" },
-        { text: "Hair Thining", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761131600/Products/qeevbtkc87abkyf45xqm.png" },
-        { text: "Dry Scalp", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761247528/Products/hc0tb8kf4kcmndcszt0j.png" },
-        { text: "Frizzy Hairs", imageUrl: "https://res.cloudinary.com/dxuxbl9dh/image/upload/v1761247522/Products/a6ux4jkowltxhrxvlnec.png" },
-      ],
-    };
 
-    const options = predefined[field.name];
+    const options = predefinedValues[field.name] || [];
+    console.log(options);
+
     let selected = product[field.name] || [];
     const isValidSelection = () => {
       const validSelections = selected.filter((v) => {
+        console.log(v);
         const exists = options.find((opt) =>
-          typeof v === "string" ? opt.text.toLowerCase() === v.toLowerCase() : opt.text.toLowerCase() === v.text.toLowerCase()
+          typeof v === "string" ? opt.name.toLowerCase() === v.toLowerCase() : opt.name.toLowerCase() === v.name.toLowerCase()
         );
         return exists;
       });
@@ -619,17 +618,17 @@ const ArraySection = ({ product, setProduct, field }) => {
     // Normalize: string ya object dono accept
     const isSelected = (itemText) =>
       selected.some((v) =>
-        typeof v === "string" ? v.toLowerCase() === itemText?.toLowerCase() : v.text?.toLowerCase() === itemText?.toLowerCase()
+        typeof v === "string" ? v.toLowerCase() === itemText?.toLowerCase() : v.name?.toLowerCase() === itemText?.toLowerCase()
       );
 
 
 
     const handleCheckboxChange = (item) => {
-      const exists = isSelected(item.text);
+      const exists = isSelected(item.name);
 
       const updated = exists
         ? selected.filter((v) =>
-          typeof v === "string" ? v !== item.text : v.text !== item.text
+          typeof v === "string" ? v !== item.name : v.name !== item.name
         )
         : [...selected, item];
 
@@ -646,13 +645,13 @@ const ArraySection = ({ product, setProduct, field }) => {
         </div>
         <div className={styles.checkBoxes}>
           {options.map((item, idx) => (
-            <div key={idx} className={`${styles.checkPlate} ${isSelected(item.text) ? styles.selected : ''}`}>
+            <div key={idx} className={`${styles.checkPlate} ${isSelected(item.name) ? styles.selected : ''}`}>
               <label htmlFor={`${field.name}-${idx}`}>
 
-                <Image src={`${item.imageUrl}`} alt={item.text} width={100} height={100} />
+                <Image src={`${item.imageUrl}`} alt={item.name} width={100} height={100} />
 
                 {console.log(item.imageUrl)}
-                {/* <Image src={"/images/logo.png"} alt={item.text} width={100} height={100} /> */}
+                {/* <Image src={"/images/logo.png"} alt={item.name} width={100} height={100} /> */}
               </label>
 
               <div>
@@ -660,10 +659,10 @@ const ArraySection = ({ product, setProduct, field }) => {
                 <input
                   type="checkbox"
                   id={`${field.name}-${idx}`}
-                  checked={isSelected(item.text)}
+                  checked={isSelected(item.name)}
                   onChange={() => handleCheckboxChange(item)}
                 />
-                <label htmlFor={`${field.name}-${idx}`}>{item.text}</label>
+                <label htmlFor={`${field.name}-${idx}`}>{item.name}</label>
               </div>
             </div>
           ))}

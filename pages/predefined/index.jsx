@@ -84,11 +84,26 @@ export default function PredefinedTabbedAdmin() {
                 return (
                     <div key={index} className={styles.card}>
                         <div className={styles.cardLeft}>
-                            {item.imageUrl ? (
-                                <img src={item.imageUrl} alt={item.name} className={styles.cardImage} />
-                            ) : (
+                            {/* {item.imageUrl ? ( */}
+                            <ImageManager
+                                multiple={false}
+                                images={item.imageUrl ? [item.imageUrl] : []}
+                                fileFolder={activeType}
+                                setDataFunction={(urls) => {
+                                    const updated = [...(data[activeType] || [])];
+                                    updated[index].imageUrl = urls[0] || "";
+                                    setData({ ...data, [activeType]: updated });
+                                }}
+                                removeDataFunction={() => {
+                                    const updated = [...(data[activeType] || [])];
+                                    updated[index].imageUrl = "";
+                                    setData({ ...data, [activeType]: updated });
+                                }}
+                                className={styles.cardImage}
+                            />
+                            {/* ) : (
                                 <div className={styles.noImage}>No Image</div>
-                            )}
+                            )} */}
                         </div>
                         <div className={styles.cardRight}>
                             <input
@@ -120,11 +135,26 @@ export default function PredefinedTabbedAdmin() {
                 return (
                     <div key={index} className={styles.card}>
                         <div className={styles.cardLeft}>
-                            {item.imageUrl ? (
-                                <img src={item.imageUrl} alt={item.name} className={styles.cardImage} />
-                            ) : (
-                                <div className={styles.noImage}>No Image</div>
-                            )}
+                            {/* {item.imageUrl ? ( */}
+                            <ImageManager
+                                multiple={false}
+                                images={item.imageUrl ? [item.imageUrl] : []}
+                                fileFolder={activeType}
+                                setDataFunction={(urls) => {
+                                    const updated = [...(data[activeType] || [])];
+                                    updated[index].imageUrl = urls[0] || "";
+                                    setData({ ...data, [activeType]: updated });
+                                }}
+                                removeDataFunction={() => {
+                                    const updated = [...(data[activeType] || [])];
+                                    updated[index].imageUrl = "";
+                                    setData({ ...data, [activeType]: updated });
+                                }}
+                                className={styles.cardImage}
+                            />
+                            {/* // ) : (
+                            //     <div className={styles.noImage}>No Image</div>
+                            // )} */}
                         </div>
                         <div className={styles.cardRight}>
                             <input

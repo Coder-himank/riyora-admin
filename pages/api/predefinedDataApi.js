@@ -9,6 +9,7 @@ async function handler(req, res) {
               type: type
             });   
             if (!predefinedData) {
+                return res.status(200).json({message : "success" ,data :[]});
                 return res.status(404).json({ message: 'Data not found' });
             }
             return res.status(200).json({message : "success" ,data :predefinedData});
