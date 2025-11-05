@@ -1,13 +1,28 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import styles from '@/styles/orders/ordersIndex.module.css';
-import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import CourierModal from "@/components/ui/SelectDeliveryPartner";
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { HiOutlineExternalLink } from 'react-icons/hi';
-import updateStatus, { fetchLabel, updateOrder } from '@/lib/orderUtils';
 import { FaTrash } from "react-icons/fa";
+
+// -------- API Helper with Error Handling --------
+const apiManage = async (action, orderId, extra = {}) => {
+  try {
+    const res = await fetch('/api/shiprocket/manage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, orderId, extra })
+    });
+    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'Unknown error');
+    return json;
+  } catch (err) {
+    throw new Error(err.message || 'API request failed');
+  }
+};
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -16,285 +31,173 @@ const OrdersPage = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [modalOrder, setModalOrder] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
-  const [downloading, setDownloading] = useState(false);
-  const [showCancelOrder, setShowCancelOrder] = useState(false);
+  const [showCancelled, setShowCancelled] = useState(false);
+  const [actionInProgress, setActionInProgress] = useState({}); // track per-order actions
 
-  const router = useRouter();
-
+  // -------- Fetch Orders --------
   useEffect(() => {
-    const fetchOrders = async () => {
+    (async () => {
       try {
         const res = await fetch('/api/orderApi');
-        if (!res.ok) throw new Error('Failed to fetch orders');
+        if (!res.ok) throw new Error(`Failed to fetch orders: ${res.status}`);
         const data = await res.json();
-        setOrders(data.orders);
+        setOrders(data.orders || []);
       } catch (err) {
-        setError(err.message || 'Error fetching orders');
+        setError(err.message || 'Failed to fetch orders');
       } finally {
         setLoading(false);
       }
-    };
-    fetchOrders();
+    })();
   }, []);
 
-  // ✅ Filtering with memo to prevent unnecessary renders
+  // -------- Update local order --------
+  const updateOrderLocal = (id, updates) => {
+    setOrders(prev => prev.map(o => o._id === id ? ({ ...o, ...updates }) : o));
+  };
+
+  // -------- Tabs Filtering --------
+  const tabs = ["all", "pending", "confirmed", "ready_to_ship", "in_transit", "out_for_delivery", "delivered"];
   const filteredOrders = useMemo(() => {
     return activeTab === "all"
-      ? showCancelOrder ? orders : orders.filter((order) => order.status?.toLowerCase() !== "cancelled")
-      : orders.filter((order) => order.status?.toLowerCase() === activeTab);
-  }, [activeTab, orders, showCancelOrder]);
+      ? (showCancelled ? orders : orders.filter(o => o.status !== "cancelled"))
+      : orders.filter(o => o.status === activeTab);
+  }, [orders, activeTab, showCancelled]);
 
-  const tabs = ["all", "hold", "pending", "confirmed", "ready to ship", "shipped", "delivered"];
-  const getCount = (status) =>
-    status === "all"
-      ? orders.length
-      : orders.filter((o) => o.status?.toLowerCase() === status).length;
-
-  const updateOrderStatus = (orderId, updates) => {
-    setOrders((prev) =>
-      prev.map((o) => (o._id === orderId ? { ...o, ...updates } : o))
-    );
-  };
-
-  // ✅ Handlers
-  const handleConfirmOrder = async (id) => {
+  // -------- Handle Single Order Action --------
+  const handleAction = async (id, action) => {
+    if (actionInProgress[id]) return;
+    setActionInProgress(prev => ({ ...prev, [id]: true }));
+    const toastId = toast.loading(`${action} in progress...`);
     try {
-      await updateStatus(id, "confirmed");
-      updateOrderStatus(id, { status: "confirmed" });
+      const json = await apiManage(action, id);
+      if (json.status) updateOrderLocal(id, { status: json.status });
+      if (json.courier || json.labelUrl) updateOrderLocal(id, { shipping: { ...(orders.find(o => o._id === id)?.shipping || {}), ...json } });
+      toast.success(`${action} successful`, { id: toastId });
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to confirm order");
-    }
-  };
-
-  const handlePlaceOrder = async (cname, orderId) => {
-    try {
-      await updateOrder({
-        orderId,
-        updatedFields: { courier: { courier_name: cname } }
-      });
-
-      updateOrderStatus(orderId, {
-        statu: "ready to ship",
-        courier: { courier_name: cname }
-      });
-
-      setModalOrder(null);
-      toast.success("Courier assigned!");
-    } catch (err) {
-      toast.error("Failed to assign courier");
-    }
-  };
-  const downloadLabel = async (orderId = null) => {
-    if (downloading) return;
-    setDownloading(true);
-
-    try {
-      const orderIds = orderId ? [orderId] : selectedOrders;
-
-      if (!orderIds.length) {
-        toast.error("No orders selected");
-        return;
-      }
-
-      // Call your API endpoint for each order
-      const responses = await Promise.all(
-        orderIds.map(async (id) => {
-          const res = await fetch("/api/shiprocket/label", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: id })
-          });
-
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || "Failed to fetch label");
-          return { orderId: id, labelUrl: data.labelUrl };
-        })
-      );
-
-      // ✅ Download each label
-      responses.forEach(({ orderId, labelUrl }) => {
-        if (labelUrl) {
-          const link = document.createElement("a");
-          link.href = labelUrl;
-          link.download = `label-${orderId}.pdf`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          updateOrderStatus(orderId, { status: "ready to ship" });
-        }
-      });
-
-      toast.success("Labels downloaded successfully!");
-    } catch (err) {
-      console.error("Label download error:", err);
-      toast.error(err.message || "Failed to download labels");
+      toast.error(err.message, { id: toastId });
+      console.log(err);
     } finally {
-      setDownloading(false);
+      setActionInProgress(prev => ({ ...prev, [id]: false }));
     }
   };
 
-
-  const cancelOrder = async (orderId) => {
-    try {
-      await updateOrder({
-        orderId,
-        updatedFields: { status: "cancelled" }
-      });
-
-      updateOrderStatus(orderId, { status: "cancelled" });
-      toast.success("Order cancelled");
-    } catch (err) {
-      toast.error("Failed to cancel order");
+  // -------- Handle Bulk Action --------
+  const bulkAction = async (action) => {
+    if (!selectedOrders.length) return toast.error("No orders selected");
+    toast.loading(`Performing ${action} for ${selectedOrders.length} orders...`);
+    for (const id of selectedOrders) {
+      try {
+        await handleAction(id, action);
+      } catch {
+        // Errors already handled in handleAction
+      }
     }
+    setSelectedOrders([]);
+    toast.success("Bulk action completed");
   };
 
+  // -------- Render --------
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1>Orders</h1>
+      <header className={styles.header}>
+        <h1>Orders Dashboard</h1>
 
-        {/* ✅ Tabs with counts */}
+        <div className={styles.bulkActions}>
+          <button onClick={() => bulkAction("create")} className={styles.createBtn} disabled={Object.values(actionInProgress).some(Boolean)}>Bulk Create Shipments</button>
+          <button onClick={() => bulkAction("generate_label")} className={styles.labelBtn} disabled={Object.values(actionInProgress).some(Boolean)}>Bulk Generate Labels</button>
+        </div>
+
         <div className={styles.tabs}>
-          <div className={styles.tabs_in}>
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                className={`${styles.tab} ${activeTab === tab ? styles.active : ""}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)} ({getCount(tab)})
-              </button>
-            ))}
-          </div>
+          {tabs.map(tab => (
+            <button
+              key={tab}
+              className={`${styles.tab} ${activeTab === tab ? styles.active : ""}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.replace(/_/g, " ").replace(/^\w/, c => c.toUpperCase())} ({orders.filter(o => tab === "all" ? true : o.status === tab).length})
+            </button>
+          ))}
+          {activeTab === "all" && (
+            <label className={styles.showCancelled}>
+              <input type="checkbox" checked={showCancelled} onChange={() => setShowCancelled(s => !s)} />
+              Show Cancelled
+            </label>
+          )}
         </div>
+      </header>
 
-        <div className={styles.subHeader}>
+      <main className={styles.orderList}>
+        {loading && <p className={styles.loading}>Loading orders...</p>}
+        {error && <p className={styles.error}>{error}</p>}
+        {!loading && !error && filteredOrders.length === 0 && <p>No {activeTab} orders found.</p>}
 
-          {activeTab === "all" && <span onClick={() => setShowCancelOrder(prev => !prev)}>
-            <input type="checkbox" value={showCancelOrder} checked={showCancelOrder} />
-            Show Canceled Order
-          </span>}
-        </div>
-      </div>
+        {filteredOrders.map(order => {
+          const ship = order.shipping || {};
+          const isProcessing = actionInProgress[order._id] || false;
+          return (
+            <motion.div key={order._id} className={`${styles.orderCard} ${order.status === "cancelled" ? styles.cancelled : ""}`}>
+              <div className={styles.orderHeader}>
+                <input type="checkbox" checked={selectedOrders.includes(order._id)} onChange={e => {
+                  setSelectedOrders(prev => e.target.checked ? [...prev, order._id] : prev.filter(id => id !== order._id));
+                }} disabled={isProcessing} />
+                <span className={styles.orderId}>#{order._id}</span>
+                <span className={`${styles.status} ${styles[order.status.replace(/\s+/g, '')]}`}>{order.status.replace(/_/g, " ")}</span>
+                <span className={styles.awb}>{ship?.awb ? `AWB: ${ship.awb}` : ''}</span>
+              </div>
 
-      <div className={styles.orderList}>
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p className={styles.error}>{error}</p>
-        ) : filteredOrders.length === 0 ? (
-          <p>No {activeTab} orders found</p>
-        ) : (
-          <>
-            <div className={`${styles.head_row}`}>
-              <span>Image</span>
-              <span className={styles.orderId}>ProductName</span>
-              <span>Pincode</span>
-              <span>Quantity</span>
-              <span>Amount</span>
-              <span>Payment</span>
-              <span className={styles.actionBtnHead}>Action</span>
-            </div>
+              <div className={styles.products}>
+                {order.products.map((p, i) => (
+                  <div key={i} className={styles.product}>
+                    <img src={p.imageUrl} alt={p.name} />
+                    <div className={styles.productInfo}>
+                      <span>{p.name}</span>
+                      <span>Qty: {p.quantity}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-            {filteredOrders.map((item) => (
-              <motion.div key={item._id} className={`${styles.orderItem} ${item.status === "cancelled" ? styles.cancelledOrderItem : ""}`}>
-                {/* 🔥 Product Images Stack */}
-                <div className={styles.imageStack}>
-                  {item.products?.slice(0, 4).map((p, idx) => (
-                    <img
-                      key={idx}
-                      src={p.imageUrl}
-                      alt="product"
-                      className={styles.orderImage}
-                    />
-                  ))}
-                  {item.products?.length > 4 && (
-                    <span className={styles.moreImages}>
-                      +{item.products.length - 4}
-                    </span>
-                  )}
-                </div>
+              <div className={styles.orderDetails}>
+                <span>Pincode: {order.address?.pincode || '-'}</span>
+                <span>Amount: ₹{order.amount || 0}</span>
+                <span>Payment: {order.paymentStatus}</span>
+              </div>
 
-                <span className={styles.productsName}>
-                  <ul>
+              <div className={styles.actions}>
+                {(order.status === "pending" || order.status === "hold") && (
+                  <button onClick={() => handleAction(order._id, "create")} disabled={isProcessing}>Create Shipment</button>
+                )}
 
-                    {item.products.map((p, idx) => {
-                      return (
-                        <li>
-                          {p.name}
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </span>
-                <span>{item.address?.pincode || "-"}</span>
-                <span>
-                  {item.products.reduce((total, product) => total + product.quantity, 0)}
-                </span>
+                {order.courier?.shipmentId && (
+                  <>
+                    <button onClick={() => handleAction(order._id, "label")} disabled={isProcessing}>Label</button>
+                    <button onClick={() => handleAction(order._id, "pickup")} disabled={isProcessing}>Pickup</button>
+                    <button onClick={() => handleAction(order._id, "track")} disabled={isProcessing}>Track</button>
+                    <button onClick={() => handleAction(order._id, "cancel")} disabled={isProcessing}>Cancel</button>
+                  </>
+                )}
 
-                <span>₹{item.amount || 0}</span>
-                <span>{item.paymentStatus}</span>
+                <Link href={`/orders/${order._id}`} className={styles.externalLink}><HiOutlineExternalLink /></Link>
+                <button onClick={() => handleAction(order._id, "cancel")} className={styles.deleteBtn} disabled={isProcessing}><FaTrash /></button>
+              </div>
+            </motion.div>
+          );
+        })}
 
-                {/* Actions */}
-                <div className={styles.actionBtn}>
-                  {(item.status === "pending" || item.status === "hold") && (
-                    <button
-                      className={`${styles.confirmBtn} ${styles.actionBigBtn}`}
-                      onClick={() => handleConfirmOrder(item._id)}
-                    >
-                      Confirm
-                    </button>
-                  )}
-
-                  {item.status === "confirmed" ? (
-                    <button
-                      className={` ${styles.actionBigBtn} ${styles.partnerBtn}`}
-                      onClick={() => setModalOrder(item)}
-                    >
-                      {item?.courier?.courier_name || "Select Partner"}
-                    </button>
-                  ) : item.status === "ready to ship" ? (
-                    <p className={styles.deliveryPartnerName}>
-                      {item?.courier?.courier_name}
-                    </p>
-                  ) : null}
-
-                  <button
-                    onClick={() => downloadLabel(item._id)}
-                    className={`${styles.actionBigBtn} ${styles.labelBtn}`}
-                    disabled={!(item.courier?.courier_name) || downloading}
-                  >
-                    Label
-                  </button>
-
-                  <Link href={`/orders/${item._id}`} className={styles.open}>
-                    <HiOutlineExternalLink />
-                  </Link>
-
-                  <button
-                    className={styles.cancelBtn}
-                    onClick={() => cancelOrder(item._id)}
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-
-            {/* ✅ Single Courier Modal */}
-            {modalOrder && (
-              <CourierModal
-                show={!!modalOrder}
-                order={modalOrder}
-                onClose={() => setModalOrder(null)}
-                onConfirm={(cname) => handlePlaceOrder(cname, modalOrder._id)}
-              />
-            )}
-          </>
+        {modalOrder && (
+          <CourierModal
+            show={!!modalOrder}
+            order={modalOrder}
+            onClose={() => setModalOrder(null)}
+            onConfirm={(cname) => {
+              fetch('/api/orderApi/update', { method: 'POST', body: JSON.stringify({ orderId: modalOrder._id, updatedFields: { "shipping.courierName": cname } }) });
+              setOrders(prev => prev.map(o => o._id === modalOrder._id ? ({ ...o, shipping: { ...(o.shipping || {}), courierName: cname } }) : o));
+              setModalOrder(null);
+              toast.success('Courier assigned');
+            }}
+          />
         )}
-      </div>
+      </main>
     </div>
   );
 };

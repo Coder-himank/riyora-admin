@@ -17,10 +17,22 @@ function IngredientsSection({ preDefinedIngredients, form, setForm, styles }) {
       ...prev,
       ingredients: [
         ...prev.ingredients,
-        { name: ing.name, imageUrl: ing.imageUrl, notes: [ing.note || ""] },
+        { name: ing.name, imageUrl: ing.imageUrl, notes: ing.notes, description: ing.description },
       ],
     }));
   };
+
+
+  const handleRemoveIngredient = (ing) => {
+    setForm((prev) => {
+      return {
+        ...prev,
+        ingredients: prev.ingredients.filter((i) => i.name !== ing.name),
+      };
+    })
+  };
+
+
 
   return (
     <div className={styles.section}>
@@ -65,6 +77,12 @@ function IngredientsSection({ preDefinedIngredients, form, setForm, styles }) {
                   height={40}
                 />
                 <span>{ing.name}</span>
+                <button
+                  className={styles.removeButton}
+                  onClick={() => handleRemoveIngredient(ing)}
+                >
+                  X
+                </button>
               </li>
             ))}
           </ul>

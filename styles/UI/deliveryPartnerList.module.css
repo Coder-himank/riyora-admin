@@ -20,6 +20,8 @@
     display: flex;
     gap: 8px;
     flex-direction: column;
+    max-height: 600px;
+    overflow: scroll;
 }
 
 .header {
@@ -30,6 +32,14 @@
     padding: 0 10px;
     justify-content: space-between;
 }
+.highlight{
+    padding: 10px;
+    background-color: rgb(241, 241, 241);
+    border-radius: 8px;
+    border: 1px solid #ccc;    
+}
+
+
 
 .modalContent button {
     padding: 5px 8px;
@@ -74,6 +84,7 @@
     color: white;
     border: 1px solid green;
     background: green;
+    padding: 20px;
 }
 
 .confirm:disabled{

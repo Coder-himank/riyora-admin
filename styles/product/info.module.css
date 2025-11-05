@@ -83,3 +83,16 @@
 .saveButton:hover {
   background: #000;
 }
+
+
+.removeButton {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-left: 1rem;
+  transition: background 0.2s ease;
+}

@@ -7,88 +7,84 @@ import { getShiprocketToken } from "@/lib/shiprocket/auth";
 export async function POST(req) {
   try {
     await connectDB();
-
     const { orderId } = await req.json();
+
     if (!orderId) {
-      return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
+      return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }
 
-    // 1️⃣ Fetch order
     const order = await Order.findById(orderId);
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // Validate if order has a shipment ID (created via /create)
     const shipmentId = order?.courier?.shipmentId;
     if (!shipmentId) {
       return NextResponse.json(
-        { error: "No shipment found for this order. Please create the order on Shiprocket first." },
+        { error: "Shipment not created on Shiprocket. Please create order first." },
         { status: 400 }
       );
     }
 
-    // 2️⃣ Get cached Shiprocket token
-    const token = await getShiprocketToken();
-
-    // 3️⃣ Check if label already exists
+    // 🚫 If already exists, return
     if (order.courier?.labelUrl) {
       return NextResponse.json({
         success: true,
-        message: "Label already generated",
+        message: "Label already exists",
         labelUrl: order.courier.labelUrl
       });
     }
 
-    // 4️⃣ Generate shipping label from Shiprocket
+    const token = await getShiprocketToken();
+
     const res = await fetch("https://apiv2.shiprocket.in/v1/external/courier/generate/label", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({
-        shipment_id: [shipmentId] // Must be an array
-      })
+      body: JSON.stringify({ shipment_id: [shipmentId] })
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      console.error("Shiprocket label generation error:", data);
-      return NextResponse.json({ error: data }, { status: 500 });
+      console.error("Shiprocket Label Error:", data);
+      return NextResponse.json({
+        error: data?.message || "Failed to generate label",
+        shiprocketResponse: data
+      }, { status: 500 });
     }
 
-    // 5️⃣ Extract label URL
-    const labelUrl =
-      data?.label_url ||
-      data?.response?.data?.label_url ||
-      data?.data?.label_url ||
-      null;
+    const labelUrl = data?.label_url || data?.response?.data?.label_url || null;
 
     if (!labelUrl) {
       return NextResponse.json(
-        { error: "Label URL not found in Shiprocket response", details: data },
+        { error: "Shiprocket did not return label URL", details: data },
         { status: 500 }
       );
     }
 
-    // 6️⃣ Save label URL in the order
+    // ✅ Save label URL
     order.courier.labelUrl = labelUrl;
     order.orderHistory.push({
       status: "label_generated",
-      note: "Shipping label generated on Shiprocket",
+      note: "Shiprocket Label Generated",
       updatedBy: "system"
     });
     await order.save();
 
     return NextResponse.json({
       success: true,
-      message: "Label generated successfully",
+      message: "Shipping label generated",
       labelUrl
     });
-  } catch (err) {
-    console.error("Error generating Shiprocket label:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+
+  } catch (error) {
+    console.error("Label API Error:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status: 500 }
+    );
   }
 }
