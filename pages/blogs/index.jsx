@@ -34,7 +34,7 @@ export default function BlogListPage() {
                 // update local state
                 setBlogs((prev) =>
                     prev.map((item) =>
-                        item._id === id ? { ...item, visible: false } : item
+                        item._id === id ? { ...item, published: false } : item
                     )
                 );
                 toast.success("Blog hidden successfully");
@@ -54,7 +54,7 @@ export default function BlogListPage() {
                 // update local state
                 setBlogs((prev) =>
                     prev.map((item) =>
-                        item._id === id ? { ...item, visible: true } : item
+                        item._id === id ? { ...item, published: true } : item
                     )
                 );
                 toast.success("Blog resore successfully");
@@ -87,7 +87,7 @@ export default function BlogListPage() {
             ) : (
                 <div className={styles.grid}>
                     {blogs.map((blog) => (
-                        <div key={blog._id} className={`${blog.visible ? '' : styles.cardnotVissible} ${styles.card}`}>
+                        <div key={blog._id} className={`${blog.published ? '' : styles.cardnotVissible} ${styles.card}`}>
                             {blog?.imageUrl && (
                                 <img
                                     src={blog.imageUrl}
@@ -98,9 +98,9 @@ export default function BlogListPage() {
 
                             <h2 className={styles.title}>{blog.title}</h2>
                             <p className={styles.author}>By {blog.author}</p>
-                            <p className={styles.preview}>
-                                {blog.sections?.[0]?.text?.slice(0, 80) || "No content"}...
-                            </p>
+                            {/* <p className={styles.preview}>
+                                {blog.content?.slice(0, 80) || "No content"}...
+                            </p> */}
 
                             <div className={styles.actions}>
                                 <Link
@@ -110,7 +110,7 @@ export default function BlogListPage() {
                                     ✏ Edit
                                 </Link>
                                 {
-                                    blog.visible ?
+                                    blog.published ?
                                         <button
                                             onClick={() => handleDelete(blog._id)}
                                             className={`${styles.button} ${styles.buttonDanger}`}

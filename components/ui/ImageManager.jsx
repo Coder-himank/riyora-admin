@@ -1,10 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ImageUploader from "@/components/ui/ImageUploader"; // your uploader
 import styles from "@/styles/UI/ImageManager.module.css";
-
-
 
 
 const ImageManager = ({
@@ -40,8 +38,11 @@ const ImageManager = ({
     };
 
     useEffect(() => {
-        fetchImages(fileFolder);
-    }, [uploading, images, fileFolder]);
+        if (open) {
+
+            fetchImages(fileFolder);
+        }
+    }, [uploading, images, fileFolder, open]);
 
     // Toggle selection
     const toggleSelect = (url) => {
@@ -162,4 +163,4 @@ const ImageManager = ({
     );
 };
 
-export default ImageManager;
+export default React.memo(ImageManager);
