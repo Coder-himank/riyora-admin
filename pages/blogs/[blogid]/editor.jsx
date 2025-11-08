@@ -132,27 +132,38 @@ export default function BlogEditor({ existingBlog }) {
     };
 
     const toggleHTML = () => {
+        // Always capture current content before switching modes
+        const currentContent = htmlMode
+            ? editorRef.current.value
+            : editorRef.current.innerHTML;
+
+        setBlogData((prev) => ({ ...prev, content: currentContent }));
+
         if (htmlMode) {
-            // switch to visual
+            // Switching to visual mode
             const div = document.createElement("div");
-            div.innerHTML = editorRef.current.value;
+            div.innerHTML = currentContent; // use up-to-date content
+            div.className = styles.editor;
+            div.contentEditable = true;
+            div.spellcheck = true;
+            div.oninput = updateContent;
+
             editorRef.current.replaceWith(div);
             editorRef.current = div;
-            editorRef.current.contentEditable = true;
-            editorRef.current.className = styles.editor;
-            editorRef.current.oninput = updateContent;
             setHtmlMode(false);
         } else {
-            // switch to HTML
+            // Switching to HTML mode
             const textarea = document.createElement("textarea");
-            textarea.value = blogData.content;
+            textarea.value = currentContent; // use up-to-date content
             textarea.className = styles.htmlEditor;
             textarea.oninput = updateContent;
+
             editorRef.current.replaceWith(textarea);
             editorRef.current = textarea;
             setHtmlMode(true);
         }
     };
+
 
     // Image insertion with dragging + resizing
     const handleInsertImage = () => {
@@ -269,10 +280,18 @@ export default function BlogEditor({ existingBlog }) {
 
 
     const handleSave = async (publish = false) => {
+        // Always capture latest editor content before saving
+        const currentContent = htmlMode
+            ? editorRef.current.value
+            : editorRef.current.innerHTML;
+
+        setBlogData((p) => ({ ...p, content: currentContent }));
+
         setLoading(true);
         try {
             const payload = {
                 ...blogData,
+                content: currentContent,
                 slug: blogData.slug || slugify(blogData.title),
                 published: publish,
             };
@@ -294,6 +313,7 @@ export default function BlogEditor({ existingBlog }) {
             setLoading(false);
         }
     };
+
 
     const handleSetImage = useCallback(
         (url) => setBlogData((prev) => ({ ...prev, featuredImage: url[0] })),
