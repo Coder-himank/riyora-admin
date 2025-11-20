@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
     const url =
       `https://apiv2.shiprocket.in/v1/external/courier/serviceability` +
-      `?pickup_postcode=${process.env.SHIPROCKET_PICKUP_PINCODE}` +
+      `?pickup_postcode=${process.env.SHIPROCKET_SENDER_PINCODE}` +
       `&delivery_postcode=${encodeURIComponent(pincode)}` +
       `&weight=${Number(weight)}` +
       `&length=${Number(length)}` +
@@ -81,7 +81,8 @@ export default async function handler(req, res) {
       totalCost: parseFloat(service.rate) + (cod ? parseFloat(service.cod_charges || 0) : 0),
       estDelivery: `${service.estimated_delivery_days} days`,
       mode: service.mode, // surface / air
-      serviceType: service.service_type
+      serviceType: service.service_type,
+      courierId: service.courier_id
     }));
 
     const cheapest = [...courierOptions].sort((a, b) => a.totalCost - b.totalCost)[0];

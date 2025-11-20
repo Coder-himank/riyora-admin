@@ -18,7 +18,7 @@ const navSections = [
     {
         title: 'Management',
         links: [
-            { href: '/orders', label: 'Orders', icon: <ShoppingCart /> },
+            { href: 'https://app.shiprocket.in/seller/orders/new', label: 'Orders', icon: <ShoppingCart /> },
             { href: '/products', label: 'Products', icon: <Package /> },
             { href: '/complaint', label: 'Comaplaints', icon: <MdReport /> },
             { href: '/reviews', label: 'Reviews', icon: <StarIcon /> },
@@ -29,7 +29,13 @@ const navSections = [
         links: [
             { href: '/predefined', label: 'Predefined Values', icon: <FileText /> },
             { href: '/blogs', label: 'Blogs', icon: <FileText /> },
-            { href: '/transactions', label: 'Transactions', icon: <CreditCard /> },
+            { href: 'https://dashboard.razorpay.com/app/payments', label: 'Transactions', icon: <CreditCard /> },
+        ],
+    },
+    {
+        title: 'Offers',
+        links: [
+            { href: '/promocode', label: 'Promocode', icon: <FileText /> },
         ],
     }
 ];

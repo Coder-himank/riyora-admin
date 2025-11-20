@@ -1,6 +1,14 @@
+// /pages/api/shiprocket/manage.js
 import connectDB from "@/lib/database";
 import Order from "@/lib/models/order";
-import { getShiprocketToken } from "@/lib/shiprocket/auth";
+import {
+  createOrder,
+  generateLabel,
+  schedulePickup,
+  cancelOrder,
+  trackByAwb,
+} from "@/lib/shiprocket/orders";
+import { sendNotificationToUser } from "@/lib/notification"; // Your helper
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -9,242 +17,146 @@ export default async function handler(req, res) {
 
   await connectDB();
 
-  const fail = (msg = "Something went wrong") =>
-    res.status(500).json({ success: false, error: msg });
-
   try {
     const { action, orderId, extra = {} } = req.body || {};
 
     if (!action || !orderId) {
-      console.warn("⚠️ [Shiprocket] Bad Req ->", req.body);
-      return res
-        .status(400)
-        .json({ success: false, error: "action & orderId required" });
+      return res.status(400).json({ success: false, error: "action & orderId required" });
     }
 
     const order = await Order.findById(orderId);
-    if (!order) {
-      console.warn(`⚠️ [Shiprocket] Order not found ${orderId}`);
-      return res.status(404).json({ success: false, error: "Order not found" });
-    }
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
 
-    const token = await getShiprocketToken();
+    // Ensure shipping & courier objects exist
+    order.shipping = order.shipping || {};
+    order.courier = order.courier || order.shipping || {};
 
-    const api = async (url, body) => {
-      try {
-        const r = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        });
-
-        const data = await r.json();
-        return { ok: r.ok, data };
-      } catch (e) {
-        console.error("❌ [Shiprocket] Network Error:", url, e);
-        throw new Error("Shiprocket request failed");
-      }
-    };
-
-    const done = async (status, note, data = {}) => {
-      order.orderHistory.push({
-        status,
-        note,
-        updatedBy: "system",
-        date: new Date(),
-      });
+    // Helper: push history & save
+    const pushHistory = async (status, note = "") => {
+      order.orderHistory = order.orderHistory || [];
+      order.orderHistory.push({ status, note, updatedBy: "system", date: new Date() });
+      order.updatedAt = new Date();
       await order.save();
-      console.log(`✅ [Shiprocket] ${status} for order ${orderId}`);
-      return res.json({ success: true, status, ...data });
     };
 
-    const shipmentId = order?.courier?.shipmentId;
-
-    // --------------------------------------------------------------------------
-    // ✅ CREATE ORDER
-    // --------------------------------------------------------------------------
+    // ---------------- CREATE ----------------
     if (action === "create") {
-      if (shipmentId)
-        return res.json({ success: true, message: "Already created" });
-
-      // Hard-coded Billing (your sender details)
-      const billing = {
-        name: "Himank Jain",
-        address: "56, d block, sector 14",
-        city: "Udaipur",
-        state: "Rajasthan",
-        pincode: "313002",
-        phone: "7296856604",
-        email: "official.himankjain@gmail.com",
-      };
-
-      const shipping = order.shippingAddress || order.address;
-
-      if (!shipping?.pincode || !shipping?.address) {
-        console.warn("⚠️ Invalid address on order", orderId);
-        return res
-          .status(400)
-          .json({ success: false, error: "Invalid shipping address" });
+      if (order.shipping.shipmentId || order.courier.shipmentId) {
+        return res.json({ success: true, message: "Shipment already created", order });
       }
 
-      const payload = {
-        order_id: order._id.toString(),
-        order_date: new Date(order.createdAt)
-          .toISOString()
-          .slice(0, 16)
-          .replace("T", " "),
-        pickup_location: extra?.pickup_location || "Primary",
-        channel_id: "",
-
-        shipping_is_billing: false,
-
-        billing_customer_name: billing.name,
-        billing_address: billing.address,
-        billing_city: billing.city,
-        billing_state: billing.state,
-        billing_country: "India",
-        billing_pincode: billing.pincode,
-        billing_phone: billing.phone,
-        billing_email: billing.email,
-
-        shipping_customer_name: shipping.name,
-        shipping_address: shipping.address,
-        shipping_city: shipping.city,
-        shipping_state: shipping.state,
-        shipping_country: "India",
-        shipping_pincode: shipping.pincode,
-        shipping_phone: shipping.phone,
-        shipping_email: shipping.email,
-
-        order_items: order.products.map((p) => ({
-          name: p.name,
-          sku: p.variantSku || p.sku,
-          units: p.quantity,
-          selling_price: p.variantPrice ?? p.price,
-          discount: p.discount || 0,
-          tax: p.tax || 0,
-        })),
-
-        sub_total: order.amountBreakdown?.subtotal ?? order.amount,
-        length: extra?.length || 10,
-        breadth: extra?.breadth || 10,
-        height: extra?.height || 10,
-        weight: extra?.weight || 0.5,
-
-        payment_method: order.paymentStatus === "COD" ? "COD" : "Prepaid",
-        shipping_charges: order.amountBreakdown?.shipping ?? 0,
-        giftwrap_charges: 0,
-        transaction_charges: 0,
-        total_discount: order.amountBreakdown?.discount ?? 0,
-      };
-
-      const { ok, data } = await api(
-        "https://apiv2.shiprocket.in/v1/external/orders/create/adhoc",
-        payload
-      );
-
-      if (!ok) {
-        console.error("❌ [Shiprocket] Create Failed", data);
-        return fail("Failed to create shipment");
+      // Validate courier selection
+      if (extra.courierName && typeof extra.courierName !== "string") {
+        return res.status(400).json({ success: false, error: "Invalid courierName" });
       }
 
-      order.courier = {
-        courierId: data?.awb_code,
-        shipmentId: data?.shipment_id,
-        trackingUrl: data?.tracking_url,
-      };
+      const resp = await createOrder(order, extra);
+      if (!resp.ok) {
+        console.error("[Shiprocket create] failed", resp);
+        return res.status(500).json({ success: false, error: resp.data || resp.error || "Create failed" });
+      }
+
+      const data = resp.data || {};
+      const shipmentId = data.shipment_id || data.order_id;
+      const awb = data.awb_code || data.awb || data.tracking_number;
+      const trackingUrl = data.tracking_url || data.tracking_url_web;
+
+      // Update shipping & courier
+      order.shipping = { ...order.shipping, shiprocketOrderId: data.order_id || order._id.toString(), shipmentId, awb, trackingUrl };
+      order.courier = { ...order.courier, shipmentId, awb, courierId: awb, trackingUrl };
+
       order.status = "ready_to_ship";
+      await pushHistory("ready_to_ship", `Shipment created${extra.courierName ? ` with courier ${extra.courierName}` : ""}`);
 
-      return done("ready_to_ship", "Shiprocket order created", data);
+      // Notify user
+      await sendNotificationToUser(order, `Your order #${order._id} is ready to ship.`);
+
+      return res.json({ success: true, status: "ready_to_ship", order, data });
     }
 
-    // --------------------------------------------------------------------------
-    // ✅ LABEL
-    // --------------------------------------------------------------------------
+    // ---------------- LABEL ----------------
     if (action === "label") {
-      if (!shipmentId)
-        return res.status(400).json({ success: false, error: "No shipment" });
+      const shipmentId = order.shipping.shipmentId || order.courier.shipmentId;
+      if (!shipmentId) return res.status(400).json({ success: false, error: "No shipmentId" });
 
-      const { ok, data } = await api(
-        "https://apiv2.shiprocket.in/v1/external/courier/generate/label",
-        { shipment_id: [shipmentId] }
-      );
-
-      if (!ok) {
-        console.error("❌ [Shiprocket] Label Error", data);
-        return fail();
+      const resp = await generateLabel([shipmentId]);
+      if (!resp.ok) {
+        console.error("[Shiprocket label] failed", resp);
+        return res.status(500).json({ success: false, error: resp.data || resp.error || "Label generation failed" });
       }
 
-      order.courier.labelUrl = data.label_url;
-      return done("label_generated", "Label generated", { label: data.label_url });
+      const data = resp.data || {};
+      const labelUrl = data.label_url || (data[0] && data[0].label_url);
+
+      order.shipping.labelUrl = labelUrl || order.shipping.labelUrl;
+      order.courier.labelUrl = labelUrl || order.courier.labelUrl;
+      await pushHistory("label_generated", "Shipping label generated");
+
+      return res.json({ success: true, labelUrl, order, data });
     }
 
-    // --------------------------------------------------------------------------
-    // ✅ PICKUP
-    // --------------------------------------------------------------------------
+    // ---------------- PICKUP ----------------
     if (action === "pickup") {
-      if (!shipmentId)
-        return res.status(400).json({ success: false, error: "No shipment" });
+      const shipmentId = order.shipping.shipmentId || order.courier.shipmentId;
+      if (!shipmentId) return res.status(400).json({ success: false, error: "No shipmentId" });
 
-      const { ok, data } = await api(
-        "https://apiv2.shiprocket.in/v1/external/courier/generate/pickup",
-        { shipment_id: [shipmentId] }
-      );
-
-      if (!ok) {
-        console.error("❌ [Shiprocket] Pickup Error", data);
-        return fail();
+      const resp = await schedulePickup([shipmentId]);
+      if (!resp.ok) {
+        console.error("[Shiprocket pickup] failed", resp);
+        return res.status(500).json({ success: false, error: resp.data || resp.error || "Pickup scheduling failed" });
       }
 
-      order.courier.pickupScheduled = true;
-      order.courier.pickupDate = data.pickup_scheduled_date;
+      const data = resp.data || {};
+      order.shipping.pickupScheduled = true;
+      order.shipping.pickupDate = data.pickup_scheduled_date || order.shipping.pickupDate;
+      order.courier.pickupScheduled = order.shipping.pickupScheduled;
+      order.courier.pickupDate = order.shipping.pickupDate;
 
-      return done("pickup_scheduled", "Pickup scheduled", data);
+      await pushHistory("pickup_scheduled", "Pickup scheduled via Shiprocket");
+
+      // Notify user
+      await sendNotificationToUser(order, `Pickup scheduled for your order #${order._id}.`);
+
+      return res.json({ success: true, order, data });
     }
 
-    // --------------------------------------------------------------------------
-    // ✅ CANCEL
-    // --------------------------------------------------------------------------
+    // ---------------- CANCEL ----------------
     if (action === "cancel") {
-      const { ok, data } = await api(
-        "https://apiv2.shiprocket.in/v1/external/orders/cancel",
-        { ids: [orderId] }
-      );
-
-      if (!ok) {
-        console.error("❌ [Shiprocket] Cancel Error", data);
-        return fail();
+      const shipOrderId = order.shipping.shiprocketOrderId || order._id.toString();
+      const resp = await cancelOrder([shipOrderId]);
+      if (!resp.ok) {
+        console.error("[Shiprocket cancel] failed", resp);
+        return res.status(500).json({ success: false, error: resp.data || resp.error || "Cancel failed" });
       }
 
       order.status = "cancelled";
-      return done("cancelled", "Shipment cancelled");
+      await pushHistory("cancelled", "Shipment cancelled via Shiprocket");
+
+      // Notify user
+      await sendNotificationToUser(order, `Your order #${order._id} has been cancelled.`);
+
+      return res.json({ success: true, status: "cancelled", order, data: resp.data });
     }
 
-    // --------------------------------------------------------------------------
-    // ✅ TRACK
-    // --------------------------------------------------------------------------
+    // ---------------- TRACK ----------------
     if (action === "track") {
-      if (!shipmentId)
-        return res.status(400).json({ success: false, error: "No shipment" });
+      const awb = order.shipping.awb || order.courier.awb || order.courier.courierId;
+      if (!awb) return res.status(400).json({ success: false, error: "No AWB found" });
 
-      const { ok, data } = await api(
-        `https://apiv2.shiprocket.in/v1/external/courier/track/awb/${order.courier.courierId}`,
-        {}
-      );
+      const resp = await trackByAwb(awb);
+      if (!resp.ok) {
+        console.error("[Shiprocket track] failed", resp);
+        return res.status(500).json({ success: false, error: resp.data || resp.error || "Tracking failed" });
+      }
 
-      if (!ok) return fail("Tracking failed");
-
-      return res.json({ success: true, tracking: data });
+      await pushHistory("tracking_polled", "Tracking polled from Shiprocket");
+      return res.json({ success: true, tracking: resp.data, order });
     }
 
     return res.status(400).json({ success: false, error: "Invalid action" });
+
   } catch (err) {
-    console.error("🔥 [Shiprocket] Fatal Error", err);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    console.error("[Shiprocket Manage] Error:", err);
+    return res.status(500).json({ success: false, error: "Internal server error" });
   }
 }

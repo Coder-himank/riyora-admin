@@ -14,7 +14,7 @@ const CourierModal = ({ show, order, onClose, onConfirm }) => {
         const fetchCouriers = async () => {
             setLoading(true);
             try {
-                const res = await fetch("/api/courierRates", {
+                const res = await fetch("/api/shiprocket/courierRates", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -58,7 +58,7 @@ const CourierModal = ({ show, order, onClose, onConfirm }) => {
 
                 {!loading && couriers.length > 0 && (
                     <>
-                        {/* ✅ Highlight Cheapest & Fastest */}
+                        {/* Highlight Cheapest & Fastest */}
                         {cheapest && (
                             <div className={styles.highlight}>
                                 💸 Cheapest: {cheapest.courier} — ₹{cheapest.totalCost}
@@ -71,19 +71,18 @@ const CourierModal = ({ show, order, onClose, onConfirm }) => {
                             </div>
                         )}
 
-                        {/* ✅ Courier List */}
+                        {/* Courier List */}
                         {couriers.map((c, i) => (
                             <div
                                 key={i}
-                                className={`${styles.courierOption} ${selectedCourier === c.courier ? styles.selected : ""
-                                    }`}
+                                className={`${styles.courierOption} ${selectedCourier?.courierId === c.courier_id ? styles.selected : ""}`}
                             >
                                 <span>{c.courier}</span>
                                 <span>₹{c.totalCost}</span>
                                 <span>{c.estDelivery}</span>
 
-                                <button onClick={() => setSelectedCourier(c.courier)}>
-                                    {selectedCourier === c.courier ? "Selected" : "Choose"}
+                                <button onClick={() => setSelectedCourier({ courierId: c.courier_id, courierName: c.courier })}>
+                                    {selectedCourier?.courierId === c.courier_id ? "Selected" : "Choose"}
                                 </button>
                             </div>
                         ))}
@@ -93,7 +92,7 @@ const CourierModal = ({ show, order, onClose, onConfirm }) => {
                             disabled={!selectedCourier}
                             onClick={() => onConfirm(selectedCourier)}
                         >
-                            Place Order with {selectedCourier}
+                            Place Order with {selectedCourier?.courierName}
                         </button>
                     </>
                 )}

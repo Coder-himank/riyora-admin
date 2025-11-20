@@ -28,7 +28,7 @@ const ImageManager = ({
 
         setLoading(true);
         try {
-            const res = await axios.get(`/api/listImages?folder=${fileFolder}`);
+            const res = await axios.get(`/api/cloudinary/listImages?folder=${fileFolder}`);
             setCloudedImages(res.data.resources || []);
         } catch (err) {
             console.error("Failed to load images", err);
