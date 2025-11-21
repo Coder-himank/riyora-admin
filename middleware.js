@@ -25,33 +25,38 @@ const PAGE_ROUTES = [
 
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
+if (pathname.startsWith("/api/external")) {
+  
+  const origin = req.headers.get("origin");
+  const referer = req.headers.get("referer");
+  const serverSecret = req.headers.get("x-server-secret");
 
-  // ----------- ALLOW EXTERNAL API REQUESTS -----------
+  // ✅ Allow if the request has the server secret
+  if (serverSecret === process.env.SERVER_API_SECRET) {
+    return NextResponse.next();
+  }
+
+  // ✅ Allow browser requests from allowed domains
   const allowedExternalDomains = [
     "https://riyoraorganic.com",
     "https://www.riyoraorganic.com",
     "https://riyora-organic.vercel.app",
-    "http://localhost:3000/"
-    // "http://www.riyoraorganic.com",
+    "http://localhost:3000",
   ];
 
-  if (pathname.startsWith("/api/external")) {
-    const origin = req.headers.get("origin");
-    const referer = req.headers.get("referer");
+  const isAllowedOrigin =
+    allowedExternalDomains.includes(origin) ||
+    allowedExternalDomains.some((domain) => referer?.startsWith(domain));
 
-    const isAllowedOrigin =
-      allowedExternalDomains.includes(origin) ||
-      allowedExternalDomains.some((domain) => referer?.startsWith(domain));
+  if (isAllowedOrigin) return NextResponse.next();
 
-    if (isAllowedOrigin) {
-      return NextResponse.next(); // allow request
-    }
+  // Block everything else
+  return new NextResponse(
+    JSON.stringify({ error: "Forbidden: external domain not allowed" }),
+    { status: 403, headers: { "Content-Type": "application/json" } }
+  );
+}
 
-    return new NextResponse(
-      JSON.stringify({ error: "Forbidden: external domain not allowed" }),
-      { status: 403, headers: { "Content-Type": "application/json" } }
-    );
-  }
 
   // ----------- PUBLIC ROUTES -----------
   if (
