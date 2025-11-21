@@ -6,8 +6,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
+
+
   try {
     const { orderId, type, options } = req.body;
+
+    console.log(req.body);
 
     if (!orderId || !type) {
       return res.status(400).json({ ok: false, error: "Missing orderId or type" });
