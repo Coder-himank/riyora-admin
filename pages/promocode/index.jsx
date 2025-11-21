@@ -11,13 +11,14 @@ export default function PromoDashboard() {
     const [editingId, setEditingId] = useState(null);
     const [form, setForm] = useState({
         code: "",
+        description: "",
         discount: 0,
         validFrom: "",
         expiry: "",
         applicableProducts: [],
         usageLimit: 0,
-        timesUsed: 0,
         minimumOrderValue: 0,
+        maxDiscount: 0,
     });
 
     const fetchProducts = async () => {
@@ -60,13 +61,14 @@ export default function PromoDashboard() {
     const resetForm = () => {
         setForm({
             code: "",
+            description: "",
             discount: 0,
             validFrom: "",
             expiry: "",
             applicableProducts: [],
             usageLimit: 0,
-            timesUsed: 0,
             minimumOrderValue: 0,
+            maxDiscount: 0,
         });
     };
 
@@ -112,6 +114,15 @@ export default function PromoDashboard() {
                         className={styles.input}
                         value={form.code}
                         onChange={(e) => setForm({ ...form, code: e.target.value })}
+                    />
+                </div>
+                <div className={styles.fieldGroup}>
+                    <label>Description</label>
+                    <input
+                        type="text"
+                        className={styles.input}
+                        value={form.description}
+                        onChange={(e) => setForm({ ...form, description: e.target.value })}
                     />
                 </div>
 
@@ -170,21 +181,12 @@ export default function PromoDashboard() {
                 </div>
 
                 <div className={styles.fieldGroup}>
-                    <label>Frequency</label>
+                    <label>Usage Limit</label>
                     <input
                         type="number"
                         className={styles.input}
                         value={form.usageLimit}
                         onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
-                    />
-                </div>
-                <div className={styles.fieldGroup}>
-                    <label>Customer Limit</label>
-                    <input
-                        type="number"
-                        className={styles.input}
-                        value={form.timesUsed}
-                        onChange={(e) => setForm({ ...form, timesUsed: e.target.value })}
                     />
                 </div>
 
@@ -195,6 +197,15 @@ export default function PromoDashboard() {
                         className={styles.input}
                         value={form.minimumOrderValue}
                         onChange={(e) => setForm({ ...form, minimumOrderValue: e.target.value })}
+                    />
+                </div>
+                <div className={styles.fieldGroup}>
+                    <label>Max Discount</label>
+                    <input
+                        type="number"
+                        className={styles.input}
+                        value={form.maxDiscount}
+                        onChange={(e) => setForm({ ...form, maxDiscount: e.target.value })}
                     />
                 </div>
 
