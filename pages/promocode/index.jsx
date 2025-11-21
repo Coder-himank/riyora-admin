@@ -1,85 +1,237 @@
-import React, { useEffect, useState } from 'react';
-import { getPromocodes, createPromocode, updatePromocode, deletePromocode } from '@/pages/api/promocodeApi';
-import styles from '@/styles/promocode/promocode.module.css';
+// PromoDashboard.jsx
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import styles from "@/styles/promocode/promocode.module.css";
+import axios from "axios";
 
-import axios from 'axios';
-export default function PromocodeManager() {
+export default function PromoDashboard() {
+    const [promos, setPromos] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [form, setForm] = useState({
+        code: "",
+        discount: 0,
+        validFrom: "",
+        expiry: "",
+        applicableProducts: [],
+        usageLimit: 0,
+        timesUsed: 0,
+        minimumOrderValue: 0,
+    });
 
-
-    const API_URL = '/api/promocode';
-
-    const getPromocodes = async () => {
-        const res = await axios.get(API_URL);
-        return res.data;
+    const fetchProducts = async () => {
+        try {
+            const res = await axios.get("/api/productApi");
+            setProducts(res.data || []);
+        } catch (err) {
+            console.error("Failed to fetch products:", err);
+        }
     };
 
-    const createPromocode = async (data) => {
-        const res = await axios.post(API_URL, data);
-        return res.data;
+    const fetchPromos = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get("/api/promocodeApi");
+            setPromos(res.data || []);
+        } catch (err) {
+            console.error("Failed to fetch promo codes:", err);
+        }
+        setLoading(false);
     };
 
-    const updatePromocode = async (id, data) => {
-        const res = await axios.put(`${API_URL}/${id}`, data);
-        return res.data;
+    const createOrUpdatePromo = async () => {
+        setLoading(true);
+        try {
+            if (editingId) {
+                await axios.put(`/api/promocodeApi?id=${editingId}`, form);
+                setEditingId(null);
+            } else {
+                await axios.post("/api/promocodeApi", form);
+            }
+        } catch (err) {
+            console.error("Failed to save promo code:", err);
+        }
+        fetchPromos();
+        resetForm();
+        setLoading(false);
     };
 
-    const deletePromocode = async (id) => {
-        const res = await axios.delete(`${API_URL}/${id}`);
-        return res.data;
+    const resetForm = () => {
+        setForm({
+            code: "",
+            discount: 0,
+            validFrom: "",
+            expiry: "",
+            applicableProducts: [],
+            usageLimit: 0,
+            timesUsed: 0,
+            minimumOrderValue: 0,
+        });
     };
 
-    const [promocodes, setPromocodes] = useState([]);
-    const [form, setForm] = useState({ code: '', discount: '', expiry: '' });
+    const deleteOrActivatePromo = async (id, body) => {
+        setLoading(true);
+        try {
+            await axios.put(`/api/promocodeApi?id=${id}`, body);
+
+        } catch (err) {
+            console.error("Failed to delete promo:", err);
+        }
+        fetchPromos();
+        setLoading(false);
+    };
+
+    const startEdit = (promo) => {
+        setEditingId(promo._id);
+        console.log(promo);
+        setForm({
+            code: promo.code,
+            discount: promo.discount,
+            validFrom: promo.validFrom?.slice(0, 10),
+            expiry: promo.expiry?.slice(0, 10),
+            applicableProducts: promo.applicableProducts || [],
+            usageLimit: promo.usageLimit,
+            minimumOrderValue: promo.minimumOrderValue,
+        });
+    };
 
     useEffect(() => {
-        loadPromocodes();
+        fetchProducts();
+        fetchPromos();
     }, []);
 
-    const loadPromocodes = async () => {
-        const data = await getPromocodes();
-        setPromocodes(data);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        await createPromocode(form);
-        setForm({ code: '', discount: '', expiry: '' });
-        loadPromocodes();
-    };
-
-    const handleDelete = async (id) => {
-        await deletePromocode(id);
-        loadPromocodes();
-    };
-
-    const handleUpdate = async (id, updated) => {
-        await updatePromocode(id, updated);
-        loadPromocodes();
-    };
-
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Promocode Management</h1>
-            <form className={styles.form} onSubmit={handleSubmit}>
-                <input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} />
-                <input placeholder="Discount %" value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} />
-                <input type="date" value={form.expiry} onChange={(e) => setForm({ ...form, expiry: e.target.value })} />
-                <button type="submit">Create</button>
-            </form>
+        <div className={styles.dashboard}>
+            <div className={styles.card}>
+                <h2 className={styles.cardTitle}>{editingId ? "Edit Promo Code" : "Create Promo Code"}</h2>
 
-            <div className={styles.list}>
-                {promocodes.map((p) => (
-                    <div key={p._id} className={styles.card}>
-                        <h2>{p.code}</h2>
-                        <p>Discount: {p.discount}%</p>
-                        <p>Expires: {new Date(p.expiry).toLocaleDateString()}</p>
+                <div className={styles.fieldGroup}>
+                    <label>Code</label>
+                    <input
+                        className={styles.input}
+                        value={form.code}
+                        onChange={(e) => setForm({ ...form, code: e.target.value })}
+                    />
+                </div>
 
-                        <button onClick={() => handleDelete(p._id)}>Delete</button>
-                        <button onClick={() => handleUpdate(p._id, { ...p, active: !p.active })}>
-                            {p.active ? 'Deactivate' : 'Activate'}
-                        </button>
+                <div className={styles.fieldGroup}>
+                    <label>Discount (%)</label>
+                    <input
+                        type="number"
+                        className={styles.input}
+                        value={form.discount}
+                        onChange={(e) => setForm({ ...form, discount: e.target.value })}
+                    />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                    <label>Valid From</label>
+                    <input
+                        type="date"
+                        className={styles.input}
+                        value={form.validFrom}
+                        onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
+                    />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                    <label>Expiry</label>
+                    <input
+                        type="date"
+                        className={styles.input}
+                        value={form.expiry}
+                        onChange={(e) => setForm({ ...form, expiry: e.target.value })}
+                    />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                    <label>Applicable Products</label>
+                    <div className={styles.checkboxGroup}>
+                        {products.map((p) => (
+                            <label key={p.id} className={styles.checkboxItem}>
+                                <input
+                                    type="checkbox"
+                                    checked={form.applicableProducts?.includes(p._id)}
+                                    onChange={(e) => {
+                                        let updated = [...form.applicableProducts];
+                                        if (e.target.checked) {
+                                            updated.push(p._id);
+                                        } else {
+                                            updated = updated.filter((id) => id !== p._id);
+                                        }
+                                        setForm({ ...form, applicableProducts: updated });
+                                    }}
+                                />
+                                <span>{p.name}</span>
+                            </label>
+                        ))}
                     </div>
-                ))}
+                </div>
+
+                <div className={styles.fieldGroup}>
+                    <label>Frequency</label>
+                    <input
+                        type="number"
+                        className={styles.input}
+                        value={form.usageLimit}
+                        onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
+                    />
+                </div>
+                <div className={styles.fieldGroup}>
+                    <label>Customer Limit</label>
+                    <input
+                        type="number"
+                        className={styles.input}
+                        value={form.timesUsed}
+                        onChange={(e) => setForm({ ...form, timesUsed: e.target.value })}
+                    />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                    <label>Minimum Order Value</label>
+                    <input
+                        type="number"
+                        className={styles.input}
+                        value={form.minimumOrderValue}
+                        onChange={(e) => setForm({ ...form, minimumOrderValue: e.target.value })}
+                    />
+                </div>
+
+                <button className={styles.button} onClick={createOrUpdatePromo}>
+                    {loading ? "Saving..." : editingId ? "Update Promo" : "Create Promo"}
+                </button>
+            </div>
+
+
+            <div className={styles.card}>
+                <h2 className={styles.cardTitle}>Promo Codes</h2>
+
+                {loading ? (
+                    <p>Loading...</p>
+                ) : (
+                    <div className={styles.promoList}>
+                        {promos.map((promo) => (
+                            <motion.div
+                                key={promo._id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className={`${styles.promoItem} ${!promo.active ? styles.inactivePromo : ""}`}
+                            >
+                                <div onClick={() => startEdit(promo)} className={styles.promoClickArea}>
+                                    <p className={styles.promoCode}>{promo.code}</p>
+                                    <p className={styles.promoDiscount}>{promo.discount}% off</p>
+                                </div>
+                                <button
+                                    className={styles.deleteBtn}
+                                    onClick={() => deleteOrActivatePromo(promo._id, { active: !promo.active })}
+                                >
+                                    {promo.active ? "Deactivate" : "Activate"}
+                                </button>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
