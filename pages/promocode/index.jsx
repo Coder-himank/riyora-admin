@@ -11,6 +11,7 @@ export default function PromoDashboard() {
     const [editingId, setEditingId] = useState(null);
     const [form, setForm] = useState({
         code: "",
+        onlyForSignedInUser: false,
         description: "",
         discount: 0,
         validFrom: "",
@@ -19,6 +20,7 @@ export default function PromoDashboard() {
         usageLimit: 0,
         minimumOrderValue: 0,
         maxDiscount: 0,
+        firstOrderOnly: false
     });
 
     const fetchProducts = async () => {
@@ -69,6 +71,8 @@ export default function PromoDashboard() {
             usageLimit: 0,
             minimumOrderValue: 0,
             maxDiscount: 0,
+            onlyForSignedInUser: false,
+            firstOrderOnly: false
         });
     };
 
@@ -95,6 +99,10 @@ export default function PromoDashboard() {
             applicableProducts: promo.applicableProducts || [],
             usageLimit: promo.usageLimit,
             minimumOrderValue: promo.minimumOrderValue,
+            maxDiscount: promo.maxDiscount,
+            description: promo.description,
+            onlyForSignedInUser: promo.onlyForSignedInUser,
+            firstOrderOnly: promo.firstOrderOnly
         });
     };
 
@@ -133,6 +141,24 @@ export default function PromoDashboard() {
                         className={styles.input}
                         value={form.discount}
                         onChange={(e) => setForm({ ...form, discount: e.target.value })}
+                    />
+                </div>
+                <div className={styles.fieldGroup}>
+                    <label>Only For Logged In User</label>
+                    <input
+                        type="checkbox"
+                        className={styles.input}
+                        checked={form.onlyForSignedInUser}
+                        onChange={(e) => setForm({ ...form, onlyForSignedInUser: e.target.checked })}
+                    />
+                </div>
+                <div className={styles.fieldGroup}>
+                    <label>Apply On First Order Only</label>
+                    <input
+                        type="checkbox"
+                        className={styles.input}
+                        checked={form.firstOrderOnly}
+                        onChange={(e) => setForm({ ...form, firstOrderOnly: e.target.checked })}
                     />
                 </div>
 
