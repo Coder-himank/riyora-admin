@@ -19,6 +19,7 @@ const FIELD_GROUPS = {
   "General Info": [
     { label: "Brand", name: "brand" },
     { label: "SKU", name: "sku" },
+    { label: "HSN", name: "hsn" },
     { label: "Name", name: "name" },
     { label: "Description", name: "description" },
   ],
