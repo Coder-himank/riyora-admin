@@ -18,7 +18,7 @@ const navSections = [
     {
         title: 'Management',
         links: [
-            // { href: 'https://app.shiprocket.in/seller/orders/new', label: 'Orders', icon: <ShoppingCart /> },
+            { href: 'https://app.shiprocket.in/seller/orders/new', label: 'Shiprocket', icon: <ShoppingCart /> },
             { href: '/orders', label: 'Orders', icon: <ShoppingCart /> },
             { href: '/products', label: 'Products', icon: <Package /> },
             { href: '/complaint', label: 'Comaplaints', icon: <MdReport /> },

@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   // Optional signature check
   const secret = process.env.SHIPROCKET_WEBHOOK_SECRET;
   if (secret) {
-    const sig = req.headers["x-shiprocket-signature"] || req.headers["x-signature"];
+    const sig = req.headers["x-api-key"] || req.headers["x-signature"];
     if (!sig || sig !== secret) {
       console.warn("[Shiprocket Webhook] Invalid signature", sig);
       return res.status(401).json({ success: false, error: "Invalid signature" });
