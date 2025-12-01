@@ -80,6 +80,11 @@ if (pathname.startsWith("/api/external")) {
 
   // ----------- API PROTECTION -----------
   if (pathname.startsWith("/api")) {
+
+    if(pathname === "/api/delivery_webhook"){
+      // only api/delivery_webhook will be passed
+        return NextResponse.next();
+    }
     for (const [apiPath, requiredPerms] of Object.entries(API_PERMISSIONS)) {
       if (pathname.startsWith(apiPath)) {
         const hasPermission = requiredPerms.every((perm) =>
