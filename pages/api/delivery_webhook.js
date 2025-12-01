@@ -42,7 +42,6 @@ export default async function handler(req, res) {
       order = await Order.findOne({
         $or: [
           { "shipping.shiprocketOrderId": shipOrderId },
-          { _id: shipOrderId },
           { "courier.shiprocketOrderId": shipOrderId },
         ],
       });
