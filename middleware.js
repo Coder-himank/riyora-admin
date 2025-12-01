@@ -65,7 +65,7 @@ if (pathname.startsWith("/api/external")) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
     pathname.startsWith("/images") ||
-    pathname === "/api/delivery_webhook"
+    pathname.startsWith("/api/delivery_webhook")
   ) {
     return NextResponse.next();
   }
