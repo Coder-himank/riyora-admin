@@ -42,6 +42,7 @@ if (pathname.startsWith("/api/external")) {
     "https://www.riyoraorganic.com",
     "https://riyora-organic.vercel.app",
     "http://localhost:3000",
+    "https://app.shiprocket.in",
   ];
 
   const isAllowedOrigin =
