@@ -64,7 +64,8 @@ if (pathname.startsWith("/api/external")) {
     pathname === "/authenticate" ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
-    pathname.startsWith("/images")
+    pathname.startsWith("/images") ||
+    pathname === "/api/delivery_webhook"
   ) {
     return NextResponse.next();
   }
@@ -81,10 +82,6 @@ if (pathname.startsWith("/api/external")) {
   // ----------- API PROTECTION -----------
   if (pathname.startsWith("/api")) {
 
-    if(pathname === "/api/delivery_webhook"){
-      // only api/delivery_webhook will be passed
-        return NextResponse.next();
-    }
     for (const [apiPath, requiredPerms] of Object.entries(API_PERMISSIONS)) {
       if (pathname.startsWith(apiPath)) {
         const hasPermission = requiredPerms.every((perm) =>
