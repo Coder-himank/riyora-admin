@@ -452,31 +452,27 @@ const VariantSection = ({ product, setProduct, setVariantsImage, removeVariantIm
   );
 };
 
-// Predefined steps
-const PREDEFINED_STEPS = [
-  {
-    imageUrl: "/images/step1.png",
-    title: "Warm the Oil",
-    description: "Slightly warm the oil for better absorption.",
-  },
-  {
-    imageUrl: "/images/step2.png",
-    title: "Apply on Scalp",
-    description: "Massage gently on scalp in circular motions.",
-  },
-  {
-    imageUrl: "/images/step3.png",
-    title: "Leave Overnight",
-    description: "Let the oil stay overnight for maximum nourishment.",
-  },
-  {
-    imageUrl: "/images/step4.png",
-    title: "Wash with Mild Shampoo",
-    description: "Rinse your hair with a natural, sulfate-free shampoo.",
-  },
-];
 
 export function ApplySection({ product, setProduct }) {
+
+  const [PREDEFINED_STEPS, setPREDEFINED_STEPS] = useState([]);
+
+  useEffect(() => {
+
+    const fetchPredefinedSteps = async () => {
+      try {
+        const res = await axios.get("/api/predefinedDataApi?type=howToUse");
+        setPREDEFINED_STEPS(res.data?.data?.data || []);
+        return res.data?.data?.data || [];
+      } catch (e) {
+        console.log("Error fetching predefined steps", e);
+        return [];
+      }
+    };
+
+    fetchPredefinedSteps();
+
+  }, []);
   const [selected, setSelected] = useState(product.howToApply || []);
 
   const toggleStep = (step) => {
