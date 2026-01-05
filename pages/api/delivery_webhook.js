@@ -71,6 +71,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, message: "Order not found. Ignored." });
     }
 
+    console.log("going");
+
     // Map incoming Shiprocket status to internal status
     const incomingStatus = payload.status || payload.current_status || payload.courier_status || payload.event || null;
 
@@ -119,7 +121,7 @@ export default async function handler(req, res) {
     }
 
     await order.save();
-    
+
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error("[Shiprocket Webhook] Error:", err);
