@@ -1,121 +1,305 @@
+/* ordersIndex.module.css */
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  color: #1f2937; /* dark gray text */
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
 }
 
 .tabs {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 0.5rem;
   align-items: center;
 }
 
 .tab {
-  padding: 6px 12px;
-  background-color: #f1f3f4;
-  border-radius: 6px;
-  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #f3f4f6;
+  color: #374151;
   font-weight: 500;
-  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .tab:hover {
-  background-color: #e0e0e0;
+  background-color: #e5e7eb;
 }
 
 .active {
-  background-color: #1a73e8;
-  color: #fff;
+  background-color: #2563eb;
+  color: white;
+}
+
+.showCancelled {
+  margin-left: auto;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .orderList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1.5rem;
 }
 
 .orderCard {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.5rem;
+  background-color: white;
+  transition: transform 0.2s;
+}
+
+.orderCard:hover {
+  transform: translateY(-2px);
+}
+
+.cancelled {
+  opacity: 0.6;
 }
 
 .orderHeader {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.orderSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
 }
 
 .orderId {
   font-weight: 600;
+  color: #111827;
 }
 
 .status {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: white;
 }
 
-.pending { background-color: #fff3cd; color: #856404; }
-.confirmed { background-color: #d1ecf1; color: #0c5460; }
-.ready_to_ship { background-color: #cce5ff; color: #004085; }
-.in_transit { background-color: #ffeeba; color: #856404; }
-.out_for_delivery { background-color: #d4edda; color: #155724; }
-.delivered { background-color: #c3e6cb; color: #155724; }
-.cancelled { background-color: #f8d7da; color: #721c24; }
+/* Status colors */
+.pending { background-color: #fbbf24; } /* yellow */
+.confirmed { background-color: #3b82f6; } /* blue */
+.ready_to_ship { background-color: #6366f1; } /* indigo */
+.in_transit { background-color: #10b981; } /* green */
+.out_for_delivery { background-color: #f97316; } /* orange */
+.delivered { background-color: #16a34a; } /* dark green */
+.cancelled { background-color: #ef4444; } /* red */
 
-.products {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 12px;
+.awb {
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
-.product {
+.expandBtn {
+  font-size: 0.9rem;
+  color: #2563eb;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-weight: 500;
+}
+
+/* Floating menu dropdown */
+.menuDropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  width: 220px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menuList {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+}
+
+.menuItem {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menuItem:hover {
+  background-color: #f3f4f6;
+}
+
+.menuItemDanger {
+  color: #ef4444;
+}
+
+.menuItemDanger:hover {
+  background-color: #fee2e2;
+}
+
+.orderDetails {
+  margin-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
   display: flex;
-  gap: 8px;
+  /* flex-direction: column; */
+  gap: 1rem;
+}
+
+.productList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.productItem {
+  display: flex;
   align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-.product img {
-  width: 50px;
-  height: 50px;
+.productImage {
+  width: 60px;
+  height: 60px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 0.5rem;
+}
+
+.productInfo p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.amountBreakdown p {
+  margin: 0.15rem 0;
+  font-size: 0.9rem;
+}
+
+.address p {
+  margin: 0.15rem 0;
+  font-size: 0.9rem;
 }
 
 .actions {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
-.deleteBtn {
-  background-color: #f44336;
-  color: #fff;
+/* Menu dropdown */
+.relative {
+  position: relative;
+}
+
+.relative button {
   border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
+  background: none;
   cursor: pointer;
 }
 
-.deleteBtn:hover {
-  background-color: #d32f2f;
+.relative div {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 50;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.externalLink {
-  margin-left: auto;
-  color: #1a73e8;
-  font-size: 18px;
+.relative ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+}
+
+.relative li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.relative li:hover {
+  background-color: #f3f4f6;
+}
+
+.relative li.text-red-600:hover {
+  background-color: #fee2e2;
+}
+
+/* Buttons inside order details */
+.actions button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actions button:hover {
+  background-color: #f3f4f6;
+}
+
+.cancelBtn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+}
+
+.cancelBtn:hover {
+  background-color: #dc2626;
 }
